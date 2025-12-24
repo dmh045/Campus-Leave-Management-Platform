@@ -100,11 +100,11 @@ CREATE TABLE `attendance_session` (
   `course_date` date NOT NULL,
   `section_start` int NOT NULL,
   `section_end` int NOT NULL,
-  `token` varchar(32) COLLATE utf8mb4_general_ci NOT NULL,
+  `token` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `token_expire_time` datetime NOT NULL,
   `allow_start_time` datetime NOT NULL,
   `allow_end_time` datetime NOT NULL,
-  `status` varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
+  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`session_id`),
@@ -244,7 +244,7 @@ CREATE TABLE `leave_impact` (
   CONSTRAINT `fk_impact_leave` FOREIGN KEY (`leave_id`) REFERENCES `leave_request` (`leave_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_impact_offering` FOREIGN KEY (`offering_id`) REFERENCES `offering` (`offering_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_impact_teacher` FOREIGN KEY (`teacher_id`) REFERENCES `staff` (`staff_id`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -253,6 +253,7 @@ CREATE TABLE `leave_impact` (
 
 LOCK TABLES `leave_impact` WRITE;
 /*!40000 ALTER TABLE `leave_impact` DISABLE KEYS */;
+INSERT INTO `leave_impact` VALUES (1,1,1,'2024-10-10',1,2,2,'PENDING',NULL,NULL);
 /*!40000 ALTER TABLE `leave_impact` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -283,7 +284,7 @@ CREATE TABLE `leave_request` (
   KEY `fk_leave_term` (`term_id`),
   CONSTRAINT `fk_leave_student` FOREIGN KEY (`student_id`) REFERENCES `student` (`student_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_leave_term` FOREIGN KEY (`term_id`) REFERENCES `term` (`term_id`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -292,7 +293,38 @@ CREATE TABLE `leave_request` (
 
 LOCK TABLES `leave_request` WRITE;
 /*!40000 ALTER TABLE `leave_request` DISABLE KEYS */;
+INSERT INTO `leave_request` VALUES (1,1,1,'SICK','BY_COURSE','感冒发烧，需要到医院就诊',NULL,'2024-10-10 08:00:00','2024-10-10 12:00:00','PENDING_COUNSELOR',NULL,NULL,'2025-12-23 00:35:04','2025-12-23 00:35:04');
 /*!40000 ALTER TABLE `leave_request` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `login_token`
+--
+
+DROP TABLE IF EXISTS `login_token`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `login_token` (
+  `token_id` bigint NOT NULL AUTO_INCREMENT,
+  `user_type` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` bigint NOT NULL,
+  `role_code` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `token` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `expire_time` datetime NOT NULL,
+  `created_at` datetime NOT NULL,
+  PRIMARY KEY (`token_id`),
+  UNIQUE KEY `token` (`token`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `login_token`
+--
+
+LOCK TABLES `login_token` WRITE;
+/*!40000 ALTER TABLE `login_token` DISABLE KEYS */;
+INSERT INTO `login_token` VALUES (1,'STUDENT',1,'STUDENT','c54f8ad7b5c44520918b74d0c0a3648e','2025-12-24 00:00:57','2025-12-23 22:00:57'),(2,'STAFF',1,'COUNSELOR','d844bc6a63ec464db3453f2868e39925','2025-12-24 00:12:38','2025-12-23 22:12:38'),(3,'STUDENT',1,'STUDENT','a01b704ceb7545eb88165f5126240b8a','2025-12-24 02:35:25','2025-12-24 00:35:25'),(4,'STUDENT',1,'STUDENT','95adcd6346ec4117ba816ca72f3689b7','2025-12-24 02:35:35','2025-12-24 00:35:35'),(5,'STAFF',1,'COUNSELOR','12bf284086b64e1c8bf5ee858c26f0a3','2025-12-24 02:35:43','2025-12-24 00:35:43');
+/*!40000 ALTER TABLE `login_token` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -353,6 +385,7 @@ CREATE TABLE `staff` (
   `is_active` tinyint(1) NOT NULL DEFAULT '1',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `password` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`staff_id`),
   UNIQUE KEY `staff_no` (`staff_no`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -364,7 +397,7 @@ CREATE TABLE `staff` (
 
 LOCK TABLES `staff` WRITE;
 /*!40000 ALTER TABLE `staff` DISABLE KEYS */;
-INSERT INTO `staff` VALUES (1,'T2024001','张辅导','F','13800000001','counselor@example.com',1,'2025-12-08 23:09:39','2025-12-08 23:09:39'),(2,'T2024002','李老师','M','13800000002','teacher@example.com',1,'2025-12-08 23:09:39','2025-12-08 23:09:39');
+INSERT INTO `staff` VALUES (1,'T2024001','张辅导','F','13800000001','counselor@example.com',1,'2025-12-08 23:09:39','2025-12-08 23:09:39',NULL),(2,'T2024002','李老师','M','13800000002','teacher@example.com',1,'2025-12-08 23:09:39','2025-12-08 23:09:39',NULL);
 /*!40000 ALTER TABLE `staff` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -414,6 +447,7 @@ CREATE TABLE `student` (
   `status` varchar(16) NOT NULL DEFAULT 'NORMAL',
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `password` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`student_id`),
   UNIQUE KEY `student_no` (`student_no`),
   KEY `fk_student_class` (`class_id`),
@@ -427,7 +461,7 @@ CREATE TABLE `student` (
 
 LOCK TABLES `student` WRITE;
 /*!40000 ALTER TABLE `student` DISABLE KEYS */;
-INSERT INTO `student` VALUES (1,'20210001','小明','M',1,'13900000001','xm@example.com','NORMAL','2025-12-08 23:09:39','2025-12-08 23:09:39'),(2,'20210002','小红','F',1,'13900000002','xh@example.com','NORMAL','2025-12-08 23:09:39','2025-12-08 23:09:39');
+INSERT INTO `student` VALUES (1,'20210001','小明','M',1,'13900000001','xm@example.com','NORMAL','2025-12-08 23:09:39','2025-12-23 21:00:58','123456'),(2,'20210002','小红','F',1,'13900000002','xh@example.com','NORMAL','2025-12-08 23:09:39','2025-12-23 21:00:58','123456');
 /*!40000 ALTER TABLE `student` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -443,7 +477,7 @@ CREATE TABLE `student_checkin` (
   `session_id` bigint NOT NULL,
   `student_id` bigint NOT NULL,
   `checkin_time` datetime NOT NULL,
-  `source` varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
+  `source` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   PRIMARY KEY (`checkin_id`),
   KEY `fk_checkin_session` (`session_id`),
   KEY `fk_checkin_student` (`student_id`),
@@ -491,14 +525,6 @@ LOCK TABLES `term` WRITE;
 INSERT INTO `term` VALUES (1,'2024-2025-1','2024-2025学年第一学期','2024-09-01','2025-01-15',1,'2025-12-08 23:09:39','2025-12-08 23:09:39');
 /*!40000 ALTER TABLE `term` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Dumping events for database 'leave_system'
---
-
---
--- Dumping routines for database 'leave_system'
---
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -509,4 +535,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-12-15 14:52:49
+-- Dump completed on 2025-12-24  9:04:15
