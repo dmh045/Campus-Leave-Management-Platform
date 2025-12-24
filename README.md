@@ -1,2 +1,0 @@
-# Campus-Leave-Management-Platform
-
