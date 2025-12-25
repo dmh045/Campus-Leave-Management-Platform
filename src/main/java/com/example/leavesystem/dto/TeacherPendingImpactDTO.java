@@ -11,6 +11,7 @@ public class TeacherPendingImpactDTO {
     private Long studentId;
     private String studentName;
     private String className;
+    private Long courseId;
     private String courseName;
     private LocalDate courseDate;
     private Integer sectionStart;

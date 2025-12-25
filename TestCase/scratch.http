@@ -1,0 +1,1108 @@
+### 0) 健康测试：服务器是否启动成功
+GET http://localhost:8080/api/leaves/my?studentId=1
+
+<> 2025-12-24T203914.401.json
+<> 2025-12-14T235857.200.json
+
+############################################################
+# 登录模块测试
+############################################################
+
+### A1) 学生登录（小明，学号=20210001，密码=123456）
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "loginType": "STUDENT",
+  "username": "20210001",
+  "password": "123456"
+}
+
+<> 2025-12-24T203914.200.json
+
+### A2) 教职工登录（辅导员，工号=1001，密码=admin123）
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "loginType": "STAFF",
+  "username": "T2024001",
+  "password": "123456"
+}
+
+<> 2025-12-24T203914-1.200.json
+<> 2025-12-24T105419.200.json
+
+### A3) 教职工登录（任课老师，工号=2001，密码=teacher123）
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "loginType": "STAFF",
+  "username": "2001",
+  "password": "123456"
+}
+
+<> 2025-12-24T203915.400.json
+
+### A4) 登出示例（把 A1 返回的 token 粘过来）
+POST http://localhost:8080/api/auth/logout?token=这里替换成实际token
+
+<> 2025-12-24T203915.200.json
+
+
+############################################################
+# 鉴权模块测试
+############################################################
+
+### 前置条件：学生登录获取token
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "loginType": "STUDENT",
+  "username": "20210001",
+  "password": "123456"
+}
+
+
+> {%
+    client.global.set("student_token", response.body.data.token);
+    client.global.set("student_userId", response.body.data.userId);
+
+%}
+
+<> 2025-12-24T203915-1.200.json
+<> 2025-12-24T155213.200.json
+
+### 测试1：使用学生token访问学生接口（应该成功）
+POST http://localhost:8080/api/leaves/apply
+Content-Type: application/json
+Authorization: Bearer {{student_token}}
+
+{
+  "studentId": {{student_userId}},
+  "termId": 1,
+  "startTime": "2025-12-25T08:00:00",
+  "endTime": "2025-12-25T12:00:00",
+  "leaveType": "SICK",
+  "applyChannel": "BY_TIME",
+  "reason": "身体不适需要请假",
+  "contactPhone": "13800138000"
+}
+
+<> 2025-12-24T203915-2.200.json
+
+### 测试2：不提供token访问受保护接口（应该返回401未授权）
+POST http://localhost:8080/api/leaves/apply
+Content-Type: application/json
+
+{
+  "studentId": 1,
+  "startTime": "2025-12-25T08:00:00",
+  "endTime": "2025-12-25T12:00:00",
+  "leaveType": "SICK",
+  "applyChannel": "BY_TIME",
+  "reason": "身体不适需要请假",
+  "contactPhone": "13800138000"
+}
+
+<> 2025-12-24T203915.401.json
+
+### 测试3：使用无效token访问受保护接口（应该返回401未授权）
+POST http://localhost:8080/api/leaves/apply
+Content-Type: application/json
+Authorization: Bearer invalid_token_123456
+
+{
+  "studentId": 1,
+  "startTime": "2025-12-25T08:00:00",
+  "endTime": "2025-12-25T12:00:00",
+  "leaveType": "SICK",
+  "applyChannel": "BY_TIME",
+  "reason": "身体不适需要请假",
+  "contactPhone": "13800138000"
+}
+
+<> 2025-12-24T203915-1.401.json
+
+
+
+### 前置条件：辅导员登录获取token
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "loginType": "STAFF",
+  "username": "T2024001",
+  "password": "123456"
+}
+
+> {%
+    client.global.set("counselor_token", response.body.data.token);
+    client.global.set("counselor_userId", response.body.data.userId);
+%}
+
+<> 2025-12-24T203915-3.200.json
+
+
+
+### 测试4：辅导员访问辅导员专属接口（应该成功）
+GET http://localhost:8080/api/leaves/pending/counselor?counselorId={{counselor_userId}}
+Authorization: Bearer {{counselor_token}}
+
+<> 2025-12-24T203916.200.json
+
+### 测试5：学生访问辅导员专属接口（应该返回403权限不足）
+GET http://localhost:8080/api/leaves/pending/counselor?counselorId=1
+Authorization: Bearer {{student_token}}
+
+<> 2025-12-24T203916.403.json
+
+### 前置条件：教师登录获取token
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "loginType": "STAFF",
+  "username": "T2024002",
+  "password": "123456"
+}
+
+
+> {%
+    client.global.set("teacher_token", response.body.data.token);
+    client.global.set("teacher_userId", response.body.data.userId);
+%}
+
+<> 2025-12-24T203916-1.200.json
+
+### 测试6：教师访问教师专属接口（应该成功）
+GET http://localhost:8080/api/leaves/pending/teacher?teacherId={{teacher_userId}}
+Authorization: Bearer {{teacher_token}}
+
+<> 2025-12-24T203916-2.200.json
+
+### 测试7：测试登出功能
+POST http://localhost:8080/api/auth/logout?token={{student_token}}
+
+<> 2025-12-24T203917.200.json
+
+### 测试8：使用已登出的token（应该返回401未授权）
+POST http://localhost:8080/api/leaves/apply
+Content-Type: application/json
+Authorization: Bearer {{student_token}}
+
+{
+  "studentId": {{student_userId}},
+  "startTime": "2025-12-25T08:00:00",
+  "endTime": "2025-12-25T12:00:00",
+  "leaveType": "SICK",
+  "reason": "身体不适需要请假",
+  "contactPhone": "13800138000"
+}
+
+<> 2025-12-24T203918.401.json
+
+############################################################
+# 一、主线：申请 → 退回 → 重新提交 → 同意 → 老师确认 → APPROVED
+############################################################
+### 1. 学生（小明，studentId=1）登录获取token
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "loginType": "STUDENT",
+  "username": "20210001",
+  "password": "123456"
+}
+
+> {%
+    // 处理登录响应，存储token和userId
+    client.global.set("student_token", response.body.data.token);
+    client.global.set("student_userId", response.body.data.userId);
+    client.log("学生Token: " + response.body.data.token);
+    client.log("学生ID: " + response.body.data.userId);
+%}
+
+<> 2025-12-24T203918.200.json
+
+### 2. 学生发起请假（假条 #1）
+# 2024-10-10 上午第1-2节，高数课病假
+
+POST http://localhost:8080/api/leaves/apply
+Content-Type: application/json
+Authorization: Bearer {{student_token}}
+
+{
+  "studentId": {{student_userId}},
+  "termId": 1,
+  "leaveType": "SICK",
+  "applyChannel": "BY_COURSE",
+  "reason": "感冒发烧，需要到医院就诊",
+  "proofUrl": null,
+  "startTime": "2024-10-10T08:00:00",
+  "endTime": "2024-10-10T12:00:00",
+  "impacts": [
+    {
+      "offeringId": 1,
+      "courseDate": "2024-10-10",
+      "sectionStart": 1,
+      "sectionEnd": 2
+    }
+  ]
+}
+
+<> 2025-12-24T203919.200.json
+<> 2025-12-14T235900.200.json
+
+
+
+
+### 返回的 leaveId 通常为 1，下文假设为 1，如不为 1 请对应修改。
+
+
+### 1. 辅导员（staff_id=1）登录获取token
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "loginType": "STAFF",
+  "username": "T2024001",
+  "password": "123456"
+}
+
+> {%
+    // 处理登录响应，存储token和userId
+    client.global.set("counselor_token", response.body.data.token);
+    client.global.set("counselor_userId", response.body.data.userId);
+    client.log("辅导员Token: " + response.body.data.token);
+    client.log("辅导员ID: " + response.body.data.userId);
+%}
+
+<> 2025-12-24T203920.200.json
+
+### 2. 辅导员查看自己的待审批列表
+GET http://localhost:8080/api/leaves/pending/counselor?counselorId={{counselor_userId}}
+Authorization: Bearer {{counselor_token}}
+
+<> 2025-12-24T203921.200.json
+
+### 3. 辅导员退回假条 #1（让学生补资料）
+POST http://localhost:8080/api/leaves/1/counselor-approve
+Content-Type: application/json
+Authorization: Bearer {{counselor_token}}
+
+{
+  "counselorId": {{counselor_userId}},
+  "action": "RETURN",
+  "comment": "请补充医院就诊证明"
+}
+
+<> 2025-12-24T203922.500.json
+<> 2025-12-24T164715.200.json
+
+
+
+
+### 4) 学生修改后重新提交假条 #1
+PUT http://localhost:8080/api/leaves/1/resubmit
+Content-Type: application/json
+Authorization: Bearer {{student_token}}
+
+{
+  "studentId": 1,
+  "termId": 1,
+  "leaveType": "SICK",
+  "applyChannel": "BY_COURSE",
+  "reason": "已补充医院就诊证明，病假申请",
+  "proofUrl": "http://example.com/proof_new.jpg",
+  "startTime": "2024-10-10T08:00:00",
+  "endTime": "2024-10-10T12:00:00",
+  "impacts": [
+    {
+      "offeringId": 1,
+      "courseDate": "2024-10-10",
+      "sectionStart": 1,
+      "sectionEnd": 2
+    }
+  ]
+}
+
+<> 2025-12-24T203922-1.500.json
+<> 2025-12-24T165615.500.json
+<> 2025-12-14T235907.200.json
+
+
+### 5) 辅导员再次查看待审批列表，应能看到假条 #1 回到 PENDING_COUNSELOR
+GET http://localhost:8080/api/leaves/pending/counselor?counselorId=1
+Content-Type: application/json
+Authorization: Bearer {{counselor_token}}
+
+<> 2025-12-24T203923.200.json
+
+
+
+### 6) 查看假条 #1 详情，确认已包含“退回记录”
+GET http://localhost:8080/api/leaves/1/detail
+Content-Type: application/json
+Authorization: Bearer {{counselor_token}}
+
+<> 2025-12-24T203924.200.json
+
+
+
+
+### 7) 辅导员同意假条 #1（PENDING_COUNSELOR → PENDING_TEACHER）
+POST http://localhost:8080/api/leaves/1/counselor-approve
+Content-Type: application/json
+Authorization: Bearer {{counselor_token}}
+
+{
+  "counselorId": 1,
+  "action": "AGREE",
+  "comment": "同意请假，注意身体"
+}
+
+<> 2025-12-24T203925.500.json
+<> 2025-12-14T235912.200.json
+
+
+
+### 8) 任课教师（staff_id=2）查看自己的待确认节次
+GET http://localhost:8080/api/leaves/pending/teacher?teacherId=2
+Content-Type: application/json
+Authorization: Bearer {{teacher_token}}
+
+<> 2025-12-24T203926.200.json
+
+
+# 这里返回的 impactId 通常为 1，下文假设为 1，如不为 1 请替换。
+
+
+### 9) 任课教师确认该节次请假（impactId=1）
+POST http://localhost:8080/api/leaves/impact/2/teacher-confirm
+Content-Type: application/json
+Authorization: Bearer {{teacher_token}}
+
+{
+  "teacherId": 2,
+  "remark": "已收到学生请假说明，确认缺勤"
+}
+
+<> 2025-12-24T203927.200.json
+<> 2025-12-14T235917.200.json
+
+
+
+### 10) 学生查看自己的请假列表，确认假条 #1 最终状态为 APPROVED
+GET http://localhost:8080/api/leaves/my?studentId=1
+Content-Type: application/json
+Authorization: Bearer {{student_token}}
+
+<> 2025-12-24T203928.200.json
+<> 2025-12-24T171027.200.json
+<> 2025-12-14T235919.200.json
+
+
+
+### 11) 学生某一天课表（用于前端彩色课表视图的数据源）
+GET http://localhost:8080/api/timetable/student/day?studentId=1&date=2024-10-10
+Content-Type: application/json
+Authorization: Bearer {{student_token}}
+
+<> 2025-12-24T203929.200.json
+
+
+### 12) 再次查看假条 #1 详情，确认时间线完整
+GET http://localhost:8080/api/leaves/1/detail
+Content-Type: application/json
+Authorization: Bearer {{student_token}}
+
+<> 2025-12-24T203930.200.json
+
+
+############################################################
+# 二、REJECT 分支：第二张假条直接被驳回（假条 #2）
+############################################################
+
+### 13) 学生再次发起请假（假条 #2，用不同时间方便区分）
+POST http://localhost:8080/api/leaves/apply
+Content-Type: application/json
+Authorization: Bearer {{student_token}}
+
+{
+  "studentId": 1,
+  "termId": 1,
+  "leaveType": "AFFAIR",
+  "applyChannel": "BY_SELF",
+  "reason": "临时想回家休息一天",
+  "proofUrl": null,
+  "startTime": "2024-10-15T08:00:00",
+  "endTime": "2024-10-15T18:00:00",
+  "impacts": [
+    {
+      "offeringId": 1,
+      "courseDate": "2024-10-15",
+      "sectionStart": 1,
+      "sectionEnd": 2
+    }
+  ]
+}
+
+<> 2025-12-24T203932.200.json
+
+
+
+
+
+### 14) 辅导员驳回假条 #2（明确不同意，这张单结束）
+POST http://localhost:8080/api/leaves/2/counselor-approve
+Content-Type: application/json
+Authorization: Bearer {{counselor_token}}
+
+{
+  "counselorId": 1,
+  "action": "REJECT",
+  "comment": "理由不充分，驳回"
+}
+
+<> 2025-12-24T203934.500.json
+
+
+
+
+### 15) 查看假条 #2 详情，确认最终状态为 REJECTED
+GET http://localhost:8080/api/leaves/2/detail
+Content-Type: application/json
+Authorization: Bearer {{student_token}}
+
+<> 2025-12-24T203935.200.json
+
+
+
+
+############################################################
+# 三、RETURN 分支示例：第三张假条被退回但暂不重新提交（假条 #3）
+############################################################
+
+### 16) 学生再发起一张请假（假条 #3，用公假类型方便区分）
+POST http://localhost:8080/api/leaves/apply
+Content-Type: application/json
+Authorization: Bearer {{student_token}}
+
+{
+  "studentId": 1,
+  "termId": 1,
+  "leaveType": "PUBLIC",
+  "applyChannel": "BY_SELF",
+  "reason": "参加校级竞赛，请假一天",
+  "proofUrl": null,
+  "startTime": "2024-11-01T08:00:00",
+  "endTime": "2024-11-01T18:00:00",
+  "impacts": [
+    {
+      "offeringId": 1,
+      "courseDate": "2024-11-01",
+      "sectionStart": 1,
+      "sectionEnd": 2
+    }
+  ]
+}
+
+<> 2025-12-24T203937.200.json
+
+
+
+### 返回的 leaveId 通常为 3，下文假设为 3。
+
+
+### 17) 辅导员退回假条 #3（让学生补资料，但学生先不改）
+POST http://localhost:8080/api/leaves/3/counselor-approve
+Content-Type: application/json
+Authorization: Bearer {{counselor_token}}
+
+{
+  "counselorId": 1,
+  "action": "RETURN",
+  "comment": "请补充竞赛通知截图后再提交"
+}
+
+<> 2025-12-24T203939.500.json
+
+
+
+
+### 18) 查看假条 #3 详情，确认状态为 RETURNED
+GET http://localhost:8080/api/leaves/3/detail
+Content-Type: application/json
+Authorization: Bearer {{student_token}}
+
+<> 2025-12-24T203940.200.json
+<> 2025-12-24T171224.200.json
+
+
+
+
+############################################################
+# 四、辅导员批量审批示例：假条 #4、#5 批量同意
+############################################################
+
+### 19) 学生连续发起两张请假（假条 #4、#5，用不同日期）
+POST http://localhost:8080/api/leaves/apply
+Content-Type: application/json
+Authorization: Bearer {{student_token}}
+
+{
+  "studentId": 1,
+  "termId": 1,
+  "leaveType": "SICK",
+  "applyChannel": "BY_SELF",
+  "reason": "连续感冒请假（第一天）",
+  "proofUrl": null,
+  "startTime": "2024-11-10T08:00:00",
+  "endTime": "2024-11-10T18:00:00",
+  "impacts": [
+    {
+      "offeringId": 1,
+      "courseDate": "2024-11-10",
+      "sectionStart": 1,
+      "sectionEnd": 2
+    }
+  ]
+}
+
+<> 2025-12-24T203942.200.json
+
+
+
+### 20) 再发起一张（假条 #5）
+POST http://localhost:8080/api/leaves/apply
+Content-Type: application/json
+Authorization: Bearer {{student_token}}
+
+{
+  "studentId": 1,
+  "termId": 1,
+  "leaveType": "SICK",
+  "applyChannel": "BY_SELF",
+  "reason": "连续感冒请假（第二天）",
+  "proofUrl": null,
+  "startTime": "2024-11-11T08:00:00",
+  "endTime": "2024-11-11T18:00:00",
+  "impacts": [
+    {
+      "offeringId": 1,
+      "courseDate": "2024-11-11",
+      "sectionStart": 1,
+      "sectionEnd": 2
+    }
+  ]
+}
+
+<> 2025-12-24T203943.200.json
+
+
+
+### 此时数据库里，leave_id 大概率依次为：1,2,3,4,5
+## 确认一下（可选）：
+## SELECT leave_id, status, leave_type FROM leave_request ORDER BY leave_id;
+
+
+### 21) 辅导员批量审批：同意假条 #7 和 #8
+POST http://localhost:8080/api/leaves/counselor-approve/batch
+Content-Type: application/json
+Authorization: Bearer {{counselor_token}}
+
+{
+  "counselorId": 1,
+  "action": "AGREE",
+  "comment": "批量同意两天病假",
+  "leaveIds": [7, 8]
+}
+
+<> 2025-12-24T203945.500.json
+
+
+
+### 22) 查看假条 #7、#8 详情，确认状态已变为 PENDING_COUNSELOR
+GET http://localhost:8080/api/leaves/4/detail
+Content-Type: application/json
+Authorization: Bearer {{student_token}}
+
+<> 2025-12-24T203946.200.json
+<> 2025-12-24T171434.200.json
+
+
+
+###
+GET http://localhost:8080/api/leaves/5/detail
+
+<> 2025-12-24T203948.401.json
+
+
+
+
+############################################################
+# 五、辅导员批量发起公假：生成多名学生的 PUBLIC 假条
+############################################################
+
+### 23) 辅导员批量发起公假（假设学生 1 和 2 参加同一场活动）
+POST http://localhost:8080/api/leaves/public/batch
+Content-Type: application/json
+Authorization: Bearer {{counselor_token}}
+
+{
+  "counselorId": 1,
+  "studentIds": [1, 2],
+  "termId": 1,
+  "reason": "学院组织参加省级竞赛（公假）",
+  "startTime": "2024-12-01T08:00:00",
+  "endTime": "2024-12-01T18:00:00",
+  "impacts": [
+    {
+      "offeringId": 1,
+      "courseDate": "2024-12-01",
+      "sectionStart": 1,
+      "sectionEnd": 2
+    }
+  ]
+}
+
+<> 2025-12-24T203949.200.json
+
+
+
+### 返回值 data 应为一个 leaveId 列表，例如 [6,7]
+# 这些请假单初始状态应为 PENDING_TEACHER，且类型为 PUBLIC，审批记录中有一条辅导员 AGREE
+
+
+
+############################################################
+# 六、班级请假统计接口：用于辅导员看板
+############################################################
+
+### 24) 班级请假统计（classId=1，统计整个学期）
+GET http://localhost:8080/api/stats/class-leave?classId=1&startDate=2024-10-01&endDate=2024-12-31
+Content-Type: application/json
+Authorization: Bearer {{counselor_token}}
+
+<> 2025-12-24T203951.200.json
+<> 2025-12-24T171548.200.json
+
+
+
+# 预期：
+# - totalLeaves ≥ 已创建的所有请假单数
+# - sickCount / affairCount / publicCount 反映各类型数量
+# - pendingCount / approvedCount / rejectedCount 对应当前状态分布
+
+### 25) 任课教师按课程维度查看待确认请假
+GET http://localhost:8080/api/leaves/pending/teacher/by-course?teacherId=2
+Content-Type: application/json
+Authorization: Bearer {{teacher_token}}
+
+<> 2025-12-24T203953.200.json
+<> 2025-12-24T171620.200.json
+<> 2025-12-24T171618.200.json
+
+
+
+############################################################
+# 七、考勤测试一：与已审批请假联动（同一节课产生 LEAVE 状态）
+############################################################
+# 前置条件：已完成步骤 1–10，使假条 #1 处于 APPROVED 状态；
+#           假条 #1 覆盖 2024-10-10 高数课（offeringId=1, section 1-2）。
+#           假设该课至少有学生 1 和学生 2 选课，且只有学生 1 请假。
+
+### 26) 任课教师（staff_id=2）发起 2024-10-10 第 1-2 节的签到场次
+POST http://localhost:8080/api/attendance/session/start
+Content-Type: application/json
+
+{
+  "teacherId": 2,
+  "offeringId": 1,
+  "courseDate": "2024-10-10",
+  "sectionStart": 1,
+  "sectionEnd": 2,
+  "durationMinutes": 10
+}
+
+<> 2025-12-24T203954.401.json
+<> 2025-12-14T235927.200.json
+<> 2025-12-14T233140.200.json
+<> 2025-12-14T232202.200.json
+
+### 预期：
+# - Result.code = 0
+# - data 中返回 sessionId 和 token（例如 sessionId=1, token="AB2C3D"）
+# 下文假设 sessionId=1，如不一致请替换。
+
+
+### 27) 学生 2（无请假）在签到时间内扫码签到
+POST http://localhost:8080/api/attendance/checkin
+Content-Type: application/json
+
+{
+  "studentId": 2,
+  "token": "4PQGXV"
+}
+
+<> 2025-12-24T203956.401.json
+<> 2025-12-14T233241.200.json
+<> 2025-12-14T232215.400.json
+<> 2025-12-14T232205.400.json
+
+
+
+
+### 预期：
+# - Result.code = 0
+# - student_checkin 表中新增一条记录 (session_id=1, student_id=2)
+# - 学生 1 不进行签到（保持“有假但未签到”的状态）
+
+
+### 28) 任课教师关闭本次签到场次（生成缺勤记录）
+POST http://localhost:8080/api/attendance/session/1/close?teacherId=2
+
+<> 2025-12-24T203958.401.json
+
+
+# 预期：
+# - Result.code = 0
+# - attendance_session.status 变为 CLOSED
+# - absence 表中不会为学生 1 生成缺勤记录（因为有 APPROVED 请假）
+# - 未签到且未请假的学生会生成缺勤记录（若班上还有其他学生）
+
+
+### 29) 任课教师查看自己在 10 月的签到场次列表
+GET http://localhost:8080/api/attendance/teacher/sessions?teacherId=2&startDate=2024-10-01&endDate=2024-10-31
+
+<> 2025-12-14T235936.200.json
+<> 2025-12-14T233255.200.json
+
+# 预期：
+# - 返回列表中包含 sessionId=1 对应的场次
+# - 该记录中：
+#   shouldAttendCount = 本课 ENROLLED 学生数
+#   checkedInCount    = 实际签到人数（至少包含学生 2）
+#   leaveCount        = 至少为 1（包含学生 1 的请假）
+
+
+### 30) 查看本次签到场次的详细情况
+GET http://localhost:8080/api/attendance/session/1/detail?teacherId=2
+
+<> 2025-12-14T235937.200.json
+<> 2025-12-14T233258.200.json
+
+# 预期（理想情况下若只有学生 1、2 两人选课）：
+# - shouldAttendCount = 2
+# - checkedInCount    = 1
+# - leaveCount        = 1
+# - absenceCount      = 0
+# - students 列表中：
+#   - 学生 1：status = "LEAVE"，checkinTime 为空
+#   - 学生 2：status = "PRESENT"，有 checkinTime
+# 若还有其他学生选课，未签到且未请假者 status = "ABSENT"，并在 absence 表中有记录。
+
+
+
+############################################################
+# 八、考勤测试二：无请假场景下生成缺勤记录
+############################################################
+# 前置条件：选好一节“没有任何学生请假”的课程节次，例如
+#           offeringId=1, 日期为 2024-10-15，第 1-2 节课。
+#           确保该时间段没有对应的 leave_impact 记录。
+
+### 31) 任课教师发起 2024-10-15 第 1-2 节的签到场次
+POST http://localhost:8080/api/attendance/session/start
+Content-Type: application/json
+
+{
+  "teacherId": 2,
+  "offeringId": 1,
+  "courseDate": "2024-10-15",
+  "sectionStart": 1,
+  "sectionEnd": 2,
+  "durationMinutes": 10
+}
+
+<> 2025-12-15T000014.200.json
+<> 2025-12-15T000000.200.json
+<> 2025-12-14T233932.200.json
+<> 2025-12-14T233405.200.json
+<> 2025-12-14T233307.200.json
+
+### 假设返回的 sessionId=2，token="XYZ789"（实际以接口返回为准）
+
+
+### 32) 仅学生 1 签到，学生 2 不签到
+POST http://localhost:8080/api/attendance/checkin
+Content-Type: application/json
+
+{
+  "studentId": 1,
+  "token": "V2VCTA"
+}
+
+<> 2025-12-15T000025.200.json
+<> 2025-12-15T000008.400.json
+<> 2025-12-14T233937.200.json
+<> 2025-12-14T233425.200.json
+<> 2025-12-14T233349.400.json
+
+### 学生 2 故意不签到，用于测试缺勤生成
+
+
+### 33) 任课教师关闭本次签到场次
+POST http://localhost:8080/api/attendance/session/2/close?teacherId=2
+
+<> 2025-12-15T000040.200.json
+<> 2025-12-14T233947.200.json
+<> 2025-12-14T233428.200.json
+
+# 预期：
+# - Result.code = 0
+# - attendance_session.session_id=2 的 status 变为 CLOSED
+# - absence 表中为“选了这门课但未签到的所有学生”生成缺勤记录
+#   （包含学生 2，且不包含学生 1）
+
+
+### 34) 查看本次签到场次详情，验证 PRESENT / ABSENT 分布
+GET http://localhost:8080/api/attendance/session/2/detail?teacherId=2
+
+<> 2025-12-15T000043.200.json
+<> 2025-12-14T233950.200.json
+<> 2025-12-14T233430.200.json
+
+# 预期（若仍只有学生 1、2 两人选课）：
+# - shouldAttendCount = 2
+# - checkedInCount    = 1
+# - leaveCount        = 0
+# - absenceCount      = 1
+# - students 列表中：
+#   学生 1：status = "PRESENT"
+#   学生 2：status = "ABSENT"
+# - absence 表里存在一条 (student_id=2, offering_id=1, course_date=2024-10-15, section 1-2) 的记录
+
+
+############################################################
+# 九、缺勤转请假（convert-to-leave）闭环测试
+############################################################
+
+### 35) 在数据库里挑一条缺勤记录（手动在 MySQL 中执行）
+#   SELECT absence_id, student_id, offering_id, course_date, section_start, section_end, status
+#   FROM absence
+#   ORDER BY absence_id;
+#
+# 前提：至少有一条 status = 'PENDING_MAKEUP' 的缺勤记录。
+# 下文假设：absence_id = 1, student_id = 2, offering_id = 1, course_date = 2024-10-15, section 1-2
+# 若不一致，请改成你实际查到的 absenceId / studentId。
+
+### 36) 将缺勤 #1 转成一张新的请假单
+POST http://localhost:8080/api/absences/3/convert-to-leave
+Content-Type: application/json
+Authorization: Bearer {{teacher_token}}
+
+{
+  "studentId": 2,
+  "termId": 1,
+  "leaveType": "AFFAIR",
+  "reason": "事后补假：老师已同意，请录入系统",
+  "proofUrl": null,
+  "startTime": "2024-10-15T08:00:00",
+  "endTime": "2024-10-15T18:00:00"
+}
+
+<> 2025-12-24T202737.500.json
+
+
+### 预期：
+# - 返回 code = 0, data 为新生成的 leaveId（例如 10）
+# - absence 表中该行：
+#     status = 'CONVERTED_TO_LEAVE'
+#     converted_leave_id = 新 leaveId
+# - leave_request 表中存在 leave_id = 新 leaveId，status = 'PENDING_COUNSELOR'
+# - leave_impact 中有一条对应 (offering=1, 2024-10-15, section 1-2) 的记录
+# - approval 中多了一条 action='APPLY', approver_role='STUDENT' 的流水
+
+
+### 37) 再次尝试转同一条缺勤（测试重复点击 / 并发保护，应失败）
+POST http://localhost:8080/api/absences/1/convert-to-leave
+Content-Type: application/json
+Authorization: Bearer {{teacher_token}}
+
+{
+  "studentId": 2,
+  "termId": 1,
+  "leaveType": "AFFAIR",
+  "reason": "重复提交测试",
+  "proofUrl": null,
+  "startTime": "2024-10-15T08:00:00",
+  "endTime": "2024-10-15T18:00:00"
+}
+
+<> 2025-12-24T202751.500.json
+<> 2025-12-15T003720.200.json
+
+###预期：
+# - 返回 code = -1
+# - message 包含 “当前状态不允许补假” 或 “该缺勤记录已被处理，请刷新后重试”
+# - absence 表中 status、converted_leave_id 保持不变，不会重复生成新的请假单
+
+
+
+############################################################
+# 十、缺勤确认（confirm）与并发测试
+############################################################
+
+### 38) 再挑一条仍为 PENDING_MAKEUP 的缺勤记录（在 MySQL 中执行）
+#   SELECT absence_id, student_id, status
+#   FROM absence
+#   ORDER BY absence_id;
+#
+# 假设查到 absence_id = 2, status = 'PENDING_MAKEUP'，用于确认缺勤。
+
+### 39) 确认缺勤 #2（不再补假）
+POST http://localhost:8080/api/absences/2/confirm?staffId=1
+
+<> 2025-12-15T003725.200.json
+
+# 预期：
+# - 返回 code = 0
+# - absence 表中该行 status = 'CONFIRMED'
+
+
+### 40) 再次确认同一条缺勤（测试重复点击 / 并发保护，应失败）
+POST http://localhost:8080/api/absences/2/confirm?staffId=1
+
+<> 2025-12-15T003728.500.json
+
+# 预期：
+# - 返回 code = -1
+# - message 包含 “当前状态不允许确认缺勤” 或 “该缺勤记录已被处理，请刷新后重试”
+# - absence 表中 status 仍为 'CONFIRMED'
+
+
+
+
+
+############################################################
+# 十一、基础数据管理模块测试
+############################################################
+
+### 41) 创建学期
+POST http://localhost:8080/admin/terms
+Content-Type: application/json
+
+{
+  "termCode": "2024S",
+  "termName": "2024春季学期",
+  "startDate": "2024-02-20",
+  "endDate": "2024-06-30",
+  "isCurrent": false
+}
+
+<> 2024-spring-term-create.json
+
+# 预期：
+# - 返回 code = 0
+# - term表中新增一条记录
+
+### 42) 查询所有学期
+GET http://localhost:8080/admin/terms
+
+<> 2024-all-terms.json
+
+# 预期：
+# - 返回 code = 0
+# - data包含所有学期记录
+
+### 43) 查询单个学期
+GET http://localhost:8080/admin/terms/1
+
+<> 2024-single-term.json
+
+# 预期：
+# - 返回 code = 0
+# - data包含指定ID的学期信息
+
+### 44) 更新学期
+PUT http://localhost:8080/admin/terms/1
+Content-Type: application/json
+
+{
+  "termCode": "2024S",
+  "termName": "2024春季学期(更新)",
+  "startDate": "2024-02-20",
+  "endDate": "2024-07-05",
+  "isCurrent": false
+}
+
+<> 2024-term-update.json
+
+# 预期：
+# - 返回 code = 0
+# - term表中对应记录已更新
+
+### 45) 开启学期
+POST http://localhost:8080/admin/terms/1/open
+
+<> 2024-term-open.json
+
+# 预期：
+# - 返回 code = 0
+# - term表中对应记录isCurrent = true
+# - 其他学期记录isCurrent自动变为false
+
+### 46) 关闭学期
+POST http://localhost:8080/admin/terms/1/close
+
+<> 2024-term-close.json
+
+# 预期：
+# - 返回 code = 0
+# - term表中对应记录isCurrent = false
+
+### 47) 删除学期
+DELETE http://localhost:8080/admin/terms/1
+
+<> 2024-term-delete.json
+
+# 预期：
+# - 返回 code = 0
+# - term表中对应记录被删除
+
+### 48) 课程管理 - 创建课程
+POST http://localhost:8080/admin/courses
+Content-Type: application/json
+
+{
+  "courseCode": "CS101",
+  "courseName": "计算机科学导论",
+  "credit": 3,
+  "description": "计算机科学基础课程"
+}
+
+<> 2024-course-create.json
+
+# 预期：
+# - 返回 code = 0
+# - course表中新增一条记录
+
+### 49) 班级管理 - 创建班级
+POST http://localhost:8080/admin/classes
+Content-Type: application/json
+
+{
+  "className": "计算机2021级1班",
+  "grade": "2021",
+  "major": "计算机科学与技术",
+  "headTeacherId": 1
+}
+
+<> 2024-class-create.json
+
+# 预期：
+# - 返回 code = 0
+# - class表中新增一条记录

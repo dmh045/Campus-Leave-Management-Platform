@@ -40,4 +40,12 @@ public interface TermMapper {
 
     @Delete("DELETE FROM term WHERE term_id = #{id}")
     int delete(Long id);
+
+    List<Term> selectAll();
+
+    Term selectById(Long id);
+
+    int deleteById(Long id);
+
+    void updateById(Term term);
 }

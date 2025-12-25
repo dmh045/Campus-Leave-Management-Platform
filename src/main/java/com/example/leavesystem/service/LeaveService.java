@@ -8,7 +8,7 @@ import com.example.leavesystem.dto.TeacherPendingImpactDTO;
 import com.example.leavesystem.dto.ClassLeaveStatsDTO;
 import com.example.leavesystem.dto.PublicLeaveBatchRequest;
 import com.example.leavesystem.entity.LeaveRequest;
-
+import com.example.leavesystem.dto.CoursePendingImpactDTO;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -22,6 +22,9 @@ public interface LeaveService {
 
     // 辅导员单条审批：action = "AGREE" / "REJECT" / "RETURN"
     void counselorApprove(Long leaveId, Long counselorId, String comment, String action);
+
+    // 学生重新提交请假单
+    LeaveApplyResponse resubmitLeave(Long leaveId, LeaveApplyRequest request);
 
     // 辅导员批量审批
     void counselorBatchApprove(Long counselorId, String action, String comment, List<Long> leaveIds);
@@ -43,4 +46,6 @@ public interface LeaveService {
 
     // 请假详情（含节次和审批时间线）
     LeaveDetailDTO getLeaveDetail(Long leaveId);
+
+    List<CoursePendingImpactDTO> listPendingByCourseForTeacher(Long teacherId);
 }

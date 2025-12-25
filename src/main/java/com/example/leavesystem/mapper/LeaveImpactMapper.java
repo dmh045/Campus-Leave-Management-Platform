@@ -43,5 +43,8 @@ public interface LeaveImpactMapper {
           AND confirm_status = 'PENDING'
         """)
     int countPendingByLeaveId(Long leaveId);
+    // 添加删除指定请假单所有影响节次的方法
+    @Delete("DELETE FROM leave_impact WHERE leave_id = #{leaveId}")
+    int deleteByLeaveId(Long leaveId);
 
 }

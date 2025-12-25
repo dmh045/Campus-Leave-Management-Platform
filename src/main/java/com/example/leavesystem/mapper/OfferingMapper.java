@@ -48,4 +48,7 @@ public interface OfferingMapper {
 
     @Delete("DELETE FROM offering WHERE offering_id = #{id}")
     int delete(Long id);
+
+    @Select("SELECT * FROM offering")
+    List<Offering> findAll();
 }

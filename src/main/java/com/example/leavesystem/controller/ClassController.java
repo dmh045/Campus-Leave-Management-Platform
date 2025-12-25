@@ -1,0 +1,74 @@
+package com.example.leavesystem.controller;
+
+import com.example.leavesystem.common.Result;
+import com.example.leavesystem.entity.Clazz;
+import com.example.leavesystem.security.RequiresRoles;
+import com.example.leavesystem.service.ClassService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/admin/classes")
+@RequiredArgsConstructor
+public class ClassController {
+
+    private final ClassService classService;
+
+    @PostMapping
+    @RequiresRoles
+    public Result create(@RequestBody Clazz clazz) {
+        Clazz created = classService.create(clazz);
+        return Result.success(created);
+    }
+
+    @PutMapping("/{id}")
+    @RequiresRoles
+    public Result update(@PathVariable Long id, @RequestBody Clazz clazz) {
+        clazz.setClassId(id);
+        Clazz updated = classService.update(clazz);
+        return Result.success(updated);
+    }
+
+    @DeleteMapping("/{id}")
+    @RequiresRoles
+    public Result delete(@PathVariable Long id) {
+        boolean ok = classService.deleteById(id);
+        return ok ? Result.success(null) : Result.failure("删除失败");
+    }
+
+    @GetMapping("/{id}")
+    @RequiresRoles
+    public Result get(@PathVariable Long id) {
+        Clazz clazz = classService.findById(id);
+        return clazz != null ? Result.success(clazz) : Result.failure("未找到班级");
+    }
+
+    @GetMapping
+    @RequiresRoles
+    public Result list() {
+        List<Clazz> list = classService.listAll();
+        return Result.success(list);
+    }
+
+    @PutMapping("/{id}/counselor")
+    @RequiresRoles
+    public Result setCounselor(@PathVariable Long id, @RequestBody CounselorRequest request) {
+        Clazz clazz = classService.setCounselor(id, request.getCounselorId());
+        return clazz != null ? Result.success(clazz) : Result.failure("设置辅导员失败");
+    }
+
+    // 内部静态类，用于接收设置辅导员的请求参数
+    private static class CounselorRequest {
+        private Long counselorId;
+
+        public Long getCounselorId() {
+            return counselorId;
+        }
+
+        public void setCounselorId(Long counselorId) {
+            this.counselorId = counselorId;
+        }
+    }
+}

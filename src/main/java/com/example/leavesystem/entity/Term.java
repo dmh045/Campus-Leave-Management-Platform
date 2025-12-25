@@ -16,4 +16,6 @@ public class Term {
     private Boolean isCurrent;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+
 }

@@ -42,4 +42,7 @@ public interface EnrollmentMapper {
 
     @Delete("DELETE FROM enrollment WHERE enrollment_id = #{id}")
     int delete(Long id);
+
+    @Select("SELECT * FROM enrollment")
+    List<Enrollment> findAll();
 }

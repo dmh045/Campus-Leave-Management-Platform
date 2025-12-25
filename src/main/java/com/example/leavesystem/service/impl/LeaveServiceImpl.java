@@ -21,12 +21,17 @@ import com.example.leavesystem.service.LeaveService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.example.leavesystem.dto.CoursePendingImpactDTO;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collections;
+
 
 @Service
 @RequiredArgsConstructor
@@ -58,6 +63,10 @@ public class LeaveServiceImpl implements LeaveService {
                 || request.getStartTime().isAfter(request.getEndTime())) {
             throw new IllegalArgumentException("请假时间段不合法");
         }
+        if (request.getApplyChannel() == null || request.getLeaveType() == null) {
+            throw new IllegalArgumentException("applyChannel 和 leaveType 不能为空");
+        }
+
 
         // 2. 校验学生/学期存在
         Student student = studentMapper.findById(request.getStudentId());
@@ -164,6 +173,84 @@ public class LeaveServiceImpl implements LeaveService {
         approval.setComment(comment);
         approval.setCreatedAt(LocalDateTime.now());
         approvalMapper.insert(approval);
+    }
+    /**
+     * 学生重新提交方法
+     */
+    @Override
+    @Transactional
+    public LeaveApplyResponse resubmitLeave(Long leaveId, LeaveApplyRequest request) {
+        // 1. 基本参数校验
+        if (request.getStudentId() == null || request.getTermId() == null) {
+            throw new IllegalArgumentException("studentId 和 termId 不能为空");
+        }
+        if (request.getStartTime() == null || request.getEndTime() == null
+                || request.getStartTime().isAfter(request.getEndTime())) {
+            throw new IllegalArgumentException("请假时间段不合法");
+        }
+        if (request.getApplyChannel() == null || request.getLeaveType() == null) {
+            throw new IllegalArgumentException("applyChannel 和 leaveType 不能为空");
+        }
+
+        // 2. 校验请假单存在且状态为 RETURNED
+        LeaveRequest leave = leaveRequestMapper.findById(leaveId);
+        if (leave == null) {
+            throw new IllegalArgumentException("请假单不存在");
+        }
+        if (!"RETURNED".equals(leave.getStatus())) {
+            throw new IllegalStateException("只有被退回的请假单才能重新提交");
+        }
+
+        // 3. 校验学生/学期存在
+        Student student = studentMapper.findById(request.getStudentId());
+        if (student == null) {
+            throw new IllegalArgumentException("学生不存在");
+        }
+        Term term = termMapper.findById(request.getTermId());
+        if (term == null) {
+            throw new IllegalArgumentException("学期不存在");
+        }
+
+        // 4. 更新 leave_request 表
+        leave.setLeaveType(request.getLeaveType());
+        leave.setApplyChannel(request.getApplyChannel());
+        leave.setReason(request.getReason());
+        leave.setProofUrl(request.getProofUrl());
+        leave.setStartTime(request.getStartTime());
+        leave.setEndTime(request.getEndTime());
+        leave.setStatus("PENDING_COUNSELOR");
+        leaveRequestMapper.updateStatus(leave);
+
+        // 5. 删除旧的影响节次
+        leaveImpactMapper.deleteByLeaveId(leaveId);
+
+        // 6. 写入新的影响节次
+        if (request.getImpacts() != null) {
+            for (LeaveApplyRequest.ImpactItem item : request.getImpacts()) {
+                if (item.getOfferingId() == null) {
+                    continue;
+                }
+
+                Offering offering = offeringMapper.findById(item.getOfferingId());
+                if (offering == null) {
+                    throw new IllegalArgumentException("开课记录不存在，id=" + item.getOfferingId());
+                }
+
+                LeaveImpact impact = new LeaveImpact();
+                impact.setLeaveId(leaveId);
+                impact.setOfferingId(item.getOfferingId());
+                impact.setCourseDate(item.getCourseDate());
+                impact.setSectionStart(item.getSectionStart());
+                impact.setSectionEnd(item.getSectionEnd());
+                impact.setTeacherId(offering.getTeacherId());
+                impact.setConfirmStatus("PENDING");
+                impact.setConfirmTime(null);
+
+                leaveImpactMapper.insert(impact);
+            }
+        }
+
+        return new LeaveApplyResponse(leaveId, leave.getStatus());
     }
 
     /**
@@ -443,6 +530,44 @@ public class LeaveServiceImpl implements LeaveService {
         dto.setApprovals(approvalItems);
 
         return dto;
+    }
+    /**
+     * 老师查看自己的待确认节次（按课程分组）
+     */
+    @Override
+    public List<CoursePendingImpactDTO> listPendingByCourseForTeacher(Long teacherId) {
+        // 获取按课程分组的原始数据（返回的是 TeacherPendingImpactDTO 列表）
+        List<TeacherPendingImpactDTO> rawData = teacherLeaveQueryMapper.findPendingByCourse(teacherId);
+
+        // 按课程ID进行分组处理
+        Map<Long, CoursePendingImpactDTO> courseMap = new HashMap<>();
+
+        for (TeacherPendingImpactDTO item : rawData) {
+            // 注意：这里需要在 TeacherPendingImpactDTO 中添加 courseId 字段
+            // 我们假设已经添加了这个字段
+            Long courseId = item.getCourseId();
+
+            if (courseMap.containsKey(courseId)) {
+                // 已存在该课程，添加影响节次
+                CoursePendingImpactDTO courseDTO = courseMap.get(courseId);
+                courseDTO.getImpacts().add(item); // 现在 item 是 TeacherPendingImpactDTO 类型
+            } else {
+                // 新课程，创建分组对象
+                CoursePendingImpactDTO courseDTO = new CoursePendingImpactDTO();
+                courseDTO.setCourseId(courseId);
+                courseDTO.setCourseName(item.getCourseName());
+
+                // 创建影响节次列表
+                List<TeacherPendingImpactDTO> impacts = new ArrayList<>();
+                impacts.add(item);
+                courseDTO.setImpacts(impacts);
+
+                courseMap.put(courseId, courseDTO);
+            }
+        }
+
+        // 返回分组后的结果
+        return new ArrayList<>(courseMap.values());
     }
 
 
