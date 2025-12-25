@@ -23,25 +23,25 @@ DROP TABLE IF EXISTS `absence`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `absence` (
-  `absence_id` bigint NOT NULL AUTO_INCREMENT,
-  `student_id` bigint NOT NULL,
-  `offering_id` bigint NOT NULL,
-  `course_date` date NOT NULL,
-  `section_start` tinyint NOT NULL,
-  `section_end` tinyint NOT NULL,
-  `source` varchar(16) NOT NULL DEFAULT 'TEACHER',
-  `status` varchar(32) NOT NULL DEFAULT 'PENDING_MAKEUP',
-  `makeup_deadline` datetime DEFAULT NULL,
-  `converted_leave_id` bigint DEFAULT NULL,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`absence_id`),
-  KEY `fk_absence_student` (`student_id`),
-  KEY `fk_absence_offering` (`offering_id`),
-  KEY `fk_absence_leave` (`converted_leave_id`),
-  CONSTRAINT `fk_absence_leave` FOREIGN KEY (`converted_leave_id`) REFERENCES `leave_request` (`leave_id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `fk_absence_offering` FOREIGN KEY (`offering_id`) REFERENCES `offering` (`offering_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_absence_student` FOREIGN KEY (`student_id`) REFERENCES `student` (`student_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                           `absence_id` bigint NOT NULL AUTO_INCREMENT,
+                           `student_id` bigint NOT NULL,
+                           `offering_id` bigint NOT NULL,
+                           `course_date` date NOT NULL,
+                           `section_start` tinyint NOT NULL,
+                           `section_end` tinyint NOT NULL,
+                           `source` varchar(16) NOT NULL DEFAULT 'TEACHER',
+                           `status` varchar(32) NOT NULL DEFAULT 'PENDING_MAKEUP',
+                           `makeup_deadline` datetime DEFAULT NULL,
+                           `converted_leave_id` bigint DEFAULT NULL,
+                           `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                           `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                           PRIMARY KEY (`absence_id`),
+                           KEY `fk_absence_student` (`student_id`),
+                           KEY `fk_absence_offering` (`offering_id`),
+                           KEY `fk_absence_leave` (`converted_leave_id`),
+                           CONSTRAINT `fk_absence_leave` FOREIGN KEY (`converted_leave_id`) REFERENCES `leave_request` (`leave_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+                           CONSTRAINT `fk_absence_offering` FOREIGN KEY (`offering_id`) REFERENCES `offering` (`offering_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                           CONSTRAINT `fk_absence_student` FOREIGN KEY (`student_id`) REFERENCES `student` (`student_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -62,18 +62,18 @@ DROP TABLE IF EXISTS `approval`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `approval` (
-  `approval_id` bigint NOT NULL AUTO_INCREMENT,
-  `leave_id` bigint NOT NULL,
-  `approver_id` bigint NOT NULL,
-  `approver_role` varchar(16) NOT NULL,
-  `action` varchar(16) NOT NULL,
-  `comment` varchar(500) DEFAULT NULL,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`approval_id`),
-  KEY `fk_approval_leave` (`leave_id`),
-  KEY `fk_approval_staff` (`approver_id`),
-  CONSTRAINT `fk_approval_leave` FOREIGN KEY (`leave_id`) REFERENCES `leave_request` (`leave_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_approval_staff` FOREIGN KEY (`approver_id`) REFERENCES `staff` (`staff_id`) ON DELETE RESTRICT ON UPDATE CASCADE
+                            `approval_id` bigint NOT NULL AUTO_INCREMENT,
+                            `leave_id` bigint NOT NULL,
+                            `approver_id` bigint NOT NULL,
+                            `approver_role` varchar(16) NOT NULL,
+                            `action` varchar(16) NOT NULL,
+                            `comment` varchar(500) DEFAULT NULL,
+                            `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                            PRIMARY KEY (`approval_id`),
+                            KEY `fk_approval_leave` (`leave_id`),
+                            KEY `fk_approval_staff` (`approver_id`),
+                            CONSTRAINT `fk_approval_leave` FOREIGN KEY (`leave_id`) REFERENCES `leave_request` (`leave_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                            CONSTRAINT `fk_approval_staff` FOREIGN KEY (`approver_id`) REFERENCES `staff` (`staff_id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -94,24 +94,24 @@ DROP TABLE IF EXISTS `attendance_session`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `attendance_session` (
-  `session_id` bigint NOT NULL AUTO_INCREMENT,
-  `teacher_id` bigint NOT NULL,
-  `offering_id` bigint NOT NULL,
-  `course_date` date NOT NULL,
-  `section_start` int NOT NULL,
-  `section_end` int NOT NULL,
-  `token` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  `token_expire_time` datetime NOT NULL,
-  `allow_start_time` datetime NOT NULL,
-  `allow_end_time` datetime NOT NULL,
-  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`session_id`),
-  KEY `fk_session_teacher` (`teacher_id`),
-  KEY `fk_session_offering` (`offering_id`),
-  CONSTRAINT `fk_session_offering` FOREIGN KEY (`offering_id`) REFERENCES `offering` (`offering_id`),
-  CONSTRAINT `fk_session_teacher` FOREIGN KEY (`teacher_id`) REFERENCES `staff` (`staff_id`)
+                                      `session_id` bigint NOT NULL AUTO_INCREMENT,
+                                      `teacher_id` bigint NOT NULL,
+                                      `offering_id` bigint NOT NULL,
+                                      `course_date` date NOT NULL,
+                                      `section_start` int NOT NULL,
+                                      `section_end` int NOT NULL,
+                                      `token` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+                                      `token_expire_time` datetime NOT NULL,
+                                      `allow_start_time` datetime NOT NULL,
+                                      `allow_end_time` datetime NOT NULL,
+                                      `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+                                      `created_at` datetime NOT NULL,
+                                      `updated_at` datetime NOT NULL,
+                                      PRIMARY KEY (`session_id`),
+                                      KEY `fk_session_teacher` (`teacher_id`),
+                                      KEY `fk_session_offering` (`offering_id`),
+                                      CONSTRAINT `fk_session_offering` FOREIGN KEY (`offering_id`) REFERENCES `offering` (`offering_id`),
+                                      CONSTRAINT `fk_session_teacher` FOREIGN KEY (`teacher_id`) REFERENCES `staff` (`staff_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -132,18 +132,18 @@ DROP TABLE IF EXISTS `class`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `class` (
-  `class_id` bigint NOT NULL AUTO_INCREMENT,
-  `class_code` varchar(32) NOT NULL,
-  `class_name` varchar(64) NOT NULL,
-  `major` varchar(64) DEFAULT NULL,
-  `grade_year` int NOT NULL,
-  `counselor_id` bigint DEFAULT NULL,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`class_id`),
-  UNIQUE KEY `class_code` (`class_code`),
-  KEY `fk_class_counselor` (`counselor_id`),
-  CONSTRAINT `fk_class_counselor` FOREIGN KEY (`counselor_id`) REFERENCES `staff` (`staff_id`) ON DELETE SET NULL ON UPDATE CASCADE
+                         `class_id` bigint NOT NULL AUTO_INCREMENT,
+                         `class_code` varchar(32) NOT NULL,
+                         `class_name` varchar(64) NOT NULL,
+                         `major` varchar(64) DEFAULT NULL,
+                         `grade_year` int NOT NULL,
+                         `counselor_id` bigint DEFAULT NULL,
+                         `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                         `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                         PRIMARY KEY (`class_id`),
+                         UNIQUE KEY `class_code` (`class_code`),
+                         KEY `fk_class_counselor` (`counselor_id`),
+                         CONSTRAINT `fk_class_counselor` FOREIGN KEY (`counselor_id`) REFERENCES `staff` (`staff_id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -165,15 +165,15 @@ DROP TABLE IF EXISTS `course`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `course` (
-  `course_id` bigint NOT NULL AUTO_INCREMENT,
-  `course_code` varchar(32) NOT NULL,
-  `course_name` varchar(100) NOT NULL,
-  `credit` decimal(4,1) NOT NULL DEFAULT '0.0',
-  `total_hours` int NOT NULL DEFAULT '0',
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`course_id`),
-  UNIQUE KEY `course_code` (`course_code`)
+                          `course_id` bigint NOT NULL AUTO_INCREMENT,
+                          `course_code` varchar(32) NOT NULL,
+                          `course_name` varchar(100) NOT NULL,
+                          `credit` decimal(4,1) NOT NULL DEFAULT '0.0',
+                          `total_hours` int NOT NULL DEFAULT '0',
+                          `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                          `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                          PRIMARY KEY (`course_id`),
+                          UNIQUE KEY `course_code` (`course_code`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -195,17 +195,17 @@ DROP TABLE IF EXISTS `enrollment`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `enrollment` (
-  `enrollment_id` bigint NOT NULL AUTO_INCREMENT,
-  `student_id` bigint NOT NULL,
-  `offering_id` bigint NOT NULL,
-  `status` varchar(16) NOT NULL DEFAULT 'ENROLLED',
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`enrollment_id`),
-  UNIQUE KEY `uk_enrollment_student_offering` (`student_id`,`offering_id`),
-  KEY `fk_enrollment_offering` (`offering_id`),
-  CONSTRAINT `fk_enrollment_offering` FOREIGN KEY (`offering_id`) REFERENCES `offering` (`offering_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_enrollment_student` FOREIGN KEY (`student_id`) REFERENCES `student` (`student_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                              `enrollment_id` bigint NOT NULL AUTO_INCREMENT,
+                              `student_id` bigint NOT NULL,
+                              `offering_id` bigint NOT NULL,
+                              `status` varchar(16) NOT NULL DEFAULT 'ENROLLED',
+                              `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                              `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                              PRIMARY KEY (`enrollment_id`),
+                              UNIQUE KEY `uk_enrollment_student_offering` (`student_id`,`offering_id`),
+                              KEY `fk_enrollment_offering` (`offering_id`),
+                              CONSTRAINT `fk_enrollment_offering` FOREIGN KEY (`offering_id`) REFERENCES `offering` (`offering_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                              CONSTRAINT `fk_enrollment_student` FOREIGN KEY (`student_id`) REFERENCES `student` (`student_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -227,23 +227,23 @@ DROP TABLE IF EXISTS `leave_impact`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `leave_impact` (
-  `impact_id` bigint NOT NULL AUTO_INCREMENT,
-  `leave_id` bigint NOT NULL,
-  `offering_id` bigint NOT NULL,
-  `course_date` date NOT NULL,
-  `section_start` tinyint NOT NULL,
-  `section_end` tinyint NOT NULL,
-  `teacher_id` bigint NOT NULL,
-  `confirm_status` varchar(16) NOT NULL DEFAULT 'PENDING',
-  `confirm_time` datetime DEFAULT NULL,
-  `remark` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`impact_id`),
-  KEY `fk_impact_leave` (`leave_id`),
-  KEY `fk_impact_offering` (`offering_id`),
-  KEY `fk_impact_teacher` (`teacher_id`),
-  CONSTRAINT `fk_impact_leave` FOREIGN KEY (`leave_id`) REFERENCES `leave_request` (`leave_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_impact_offering` FOREIGN KEY (`offering_id`) REFERENCES `offering` (`offering_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_impact_teacher` FOREIGN KEY (`teacher_id`) REFERENCES `staff` (`staff_id`) ON DELETE RESTRICT ON UPDATE CASCADE
+                                `impact_id` bigint NOT NULL AUTO_INCREMENT,
+                                `leave_id` bigint NOT NULL,
+                                `offering_id` bigint NOT NULL,
+                                `course_date` date NOT NULL,
+                                `section_start` tinyint NOT NULL,
+                                `section_end` tinyint NOT NULL,
+                                `teacher_id` bigint NOT NULL,
+                                `confirm_status` varchar(16) NOT NULL DEFAULT 'PENDING',
+                                `confirm_time` datetime DEFAULT NULL,
+                                `remark` varchar(255) DEFAULT NULL,
+                                PRIMARY KEY (`impact_id`),
+                                KEY `fk_impact_leave` (`leave_id`),
+                                KEY `fk_impact_offering` (`offering_id`),
+                                KEY `fk_impact_teacher` (`teacher_id`),
+                                CONSTRAINT `fk_impact_leave` FOREIGN KEY (`leave_id`) REFERENCES `leave_request` (`leave_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                                CONSTRAINT `fk_impact_offering` FOREIGN KEY (`offering_id`) REFERENCES `offering` (`offering_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                                CONSTRAINT `fk_impact_teacher` FOREIGN KEY (`teacher_id`) REFERENCES `staff` (`staff_id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -265,25 +265,25 @@ DROP TABLE IF EXISTS `leave_request`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `leave_request` (
-  `leave_id` bigint NOT NULL AUTO_INCREMENT,
-  `student_id` bigint NOT NULL,
-  `term_id` bigint NOT NULL,
-  `leave_type` varchar(16) NOT NULL,
-  `apply_channel` varchar(16) NOT NULL DEFAULT 'BY_COURSE',
-  `reason` varchar(500) NOT NULL,
-  `proof_url` varchar(255) DEFAULT NULL,
-  `start_time` datetime NOT NULL,
-  `end_time` datetime NOT NULL,
-  `status` varchar(32) NOT NULL DEFAULT 'DRAFT',
-  `rejected_at` datetime DEFAULT NULL,
-  `cancelled_at` datetime DEFAULT NULL,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`leave_id`),
-  KEY `fk_leave_student` (`student_id`),
-  KEY `fk_leave_term` (`term_id`),
-  CONSTRAINT `fk_leave_student` FOREIGN KEY (`student_id`) REFERENCES `student` (`student_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_leave_term` FOREIGN KEY (`term_id`) REFERENCES `term` (`term_id`) ON DELETE RESTRICT ON UPDATE CASCADE
+                                 `leave_id` bigint NOT NULL AUTO_INCREMENT,
+                                 `student_id` bigint NOT NULL,
+                                 `term_id` bigint NOT NULL,
+                                 `leave_type` varchar(16) NOT NULL,
+                                 `apply_channel` varchar(16) NOT NULL DEFAULT 'BY_COURSE',
+                                 `reason` varchar(500) NOT NULL,
+                                 `proof_url` varchar(255) DEFAULT NULL,
+                                 `start_time` datetime NOT NULL,
+                                 `end_time` datetime NOT NULL,
+                                 `status` varchar(32) NOT NULL DEFAULT 'DRAFT',
+                                 `rejected_at` datetime DEFAULT NULL,
+                                 `cancelled_at` datetime DEFAULT NULL,
+                                 `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                 `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                 PRIMARY KEY (`leave_id`),
+                                 KEY `fk_leave_student` (`student_id`),
+                                 KEY `fk_leave_term` (`term_id`),
+                                 CONSTRAINT `fk_leave_student` FOREIGN KEY (`student_id`) REFERENCES `student` (`student_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+                                 CONSTRAINT `fk_leave_term` FOREIGN KEY (`term_id`) REFERENCES `term` (`term_id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -305,15 +305,15 @@ DROP TABLE IF EXISTS `login_token`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `login_token` (
-  `token_id` bigint NOT NULL AUTO_INCREMENT,
-  `user_type` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `user_id` bigint NOT NULL,
-  `role_code` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `token` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `expire_time` datetime NOT NULL,
-  `created_at` datetime NOT NULL,
-  PRIMARY KEY (`token_id`),
-  UNIQUE KEY `token` (`token`)
+                               `token_id` bigint NOT NULL AUTO_INCREMENT,
+                               `user_type` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+                               `user_id` bigint NOT NULL,
+                               `role_code` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+                               `token` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
+                               `expire_time` datetime NOT NULL,
+                               `created_at` datetime NOT NULL,
+                               PRIMARY KEY (`token_id`),
+                               UNIQUE KEY `token` (`token`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -335,26 +335,26 @@ DROP TABLE IF EXISTS `offering`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `offering` (
-  `offering_id` bigint NOT NULL AUTO_INCREMENT,
-  `term_id` bigint NOT NULL,
-  `course_id` bigint NOT NULL,
-  `class_id` bigint NOT NULL,
-  `teacher_id` bigint NOT NULL,
-  `week_day` tinyint NOT NULL,
-  `section_start` tinyint NOT NULL,
-  `section_end` tinyint NOT NULL,
-  `classroom` varchar(64) DEFAULT NULL,
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`offering_id`),
-  KEY `fk_offering_term` (`term_id`),
-  KEY `fk_offering_course` (`course_id`),
-  KEY `fk_offering_class` (`class_id`),
-  KEY `fk_offering_teacher` (`teacher_id`),
-  CONSTRAINT `fk_offering_class` FOREIGN KEY (`class_id`) REFERENCES `class` (`class_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_offering_course` FOREIGN KEY (`course_id`) REFERENCES `course` (`course_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_offering_teacher` FOREIGN KEY (`teacher_id`) REFERENCES `staff` (`staff_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_offering_term` FOREIGN KEY (`term_id`) REFERENCES `term` (`term_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                            `offering_id` bigint NOT NULL AUTO_INCREMENT,
+                            `term_id` bigint NOT NULL,
+                            `course_id` bigint NOT NULL,
+                            `class_id` bigint NOT NULL,
+                            `teacher_id` bigint NOT NULL,
+                            `week_day` tinyint NOT NULL,
+                            `section_start` tinyint NOT NULL,
+                            `section_end` tinyint NOT NULL,
+                            `classroom` varchar(64) DEFAULT NULL,
+                            `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                            `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                            PRIMARY KEY (`offering_id`),
+                            KEY `fk_offering_term` (`term_id`),
+                            KEY `fk_offering_course` (`course_id`),
+                            KEY `fk_offering_class` (`class_id`),
+                            KEY `fk_offering_teacher` (`teacher_id`),
+                            CONSTRAINT `fk_offering_class` FOREIGN KEY (`class_id`) REFERENCES `class` (`class_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                            CONSTRAINT `fk_offering_course` FOREIGN KEY (`course_id`) REFERENCES `course` (`course_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+                            CONSTRAINT `fk_offering_teacher` FOREIGN KEY (`teacher_id`) REFERENCES `staff` (`staff_id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+                            CONSTRAINT `fk_offering_term` FOREIGN KEY (`term_id`) REFERENCES `term` (`term_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -376,18 +376,18 @@ DROP TABLE IF EXISTS `staff`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `staff` (
-  `staff_id` bigint NOT NULL AUTO_INCREMENT,
-  `staff_no` varchar(32) NOT NULL,
-  `name` varchar(50) NOT NULL,
-  `gender` char(1) DEFAULT NULL,
-  `phone` varchar(20) DEFAULT NULL,
-  `email` varchar(100) DEFAULT NULL,
-  `is_active` tinyint(1) NOT NULL DEFAULT '1',
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `password` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`staff_id`),
-  UNIQUE KEY `staff_no` (`staff_no`)
+                         `staff_id` bigint NOT NULL AUTO_INCREMENT,
+                         `staff_no` varchar(32) NOT NULL,
+                         `name` varchar(50) NOT NULL,
+                         `gender` char(1) DEFAULT NULL,
+                         `phone` varchar(20) DEFAULT NULL,
+                         `email` varchar(100) DEFAULT NULL,
+                         `is_active` tinyint(1) NOT NULL DEFAULT '1',
+                         `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                         `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                         `password` varchar(100) DEFAULT NULL,
+                         PRIMARY KEY (`staff_id`),
+                         UNIQUE KEY `staff_no` (`staff_no`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -409,13 +409,13 @@ DROP TABLE IF EXISTS `staff_role`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `staff_role` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `staff_id` bigint NOT NULL,
-  `role_code` varchar(32) NOT NULL,
-  `remark` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `fk_staff_role_staff` (`staff_id`),
-  CONSTRAINT `fk_staff_role_staff` FOREIGN KEY (`staff_id`) REFERENCES `staff` (`staff_id`) ON DELETE CASCADE ON UPDATE CASCADE
+                              `id` bigint NOT NULL AUTO_INCREMENT,
+                              `staff_id` bigint NOT NULL,
+                              `role_code` varchar(32) NOT NULL,
+                              `remark` varchar(255) DEFAULT NULL,
+                              PRIMARY KEY (`id`),
+                              KEY `fk_staff_role_staff` (`staff_id`),
+                              CONSTRAINT `fk_staff_role_staff` FOREIGN KEY (`staff_id`) REFERENCES `staff` (`staff_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -437,21 +437,21 @@ DROP TABLE IF EXISTS `student`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `student` (
-  `student_id` bigint NOT NULL AUTO_INCREMENT,
-  `student_no` varchar(32) NOT NULL,
-  `name` varchar(50) NOT NULL,
-  `gender` char(1) DEFAULT NULL,
-  `class_id` bigint NOT NULL,
-  `phone` varchar(20) DEFAULT NULL,
-  `email` varchar(100) DEFAULT NULL,
-  `status` varchar(16) NOT NULL DEFAULT 'NORMAL',
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `password` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`student_id`),
-  UNIQUE KEY `student_no` (`student_no`),
-  KEY `fk_student_class` (`class_id`),
-  CONSTRAINT `fk_student_class` FOREIGN KEY (`class_id`) REFERENCES `class` (`class_id`) ON DELETE RESTRICT ON UPDATE CASCADE
+                           `student_id` bigint NOT NULL AUTO_INCREMENT,
+                           `student_no` varchar(32) NOT NULL,
+                           `name` varchar(50) NOT NULL,
+                           `gender` char(1) DEFAULT NULL,
+                           `class_id` bigint NOT NULL,
+                           `phone` varchar(20) DEFAULT NULL,
+                           `email` varchar(100) DEFAULT NULL,
+                           `status` varchar(16) NOT NULL DEFAULT 'NORMAL',
+                           `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                           `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                           `password` varchar(100) DEFAULT NULL,
+                           PRIMARY KEY (`student_id`),
+                           UNIQUE KEY `student_no` (`student_no`),
+                           KEY `fk_student_class` (`class_id`),
+                           CONSTRAINT `fk_student_class` FOREIGN KEY (`class_id`) REFERENCES `class` (`class_id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -473,16 +473,16 @@ DROP TABLE IF EXISTS `student_checkin`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `student_checkin` (
-  `checkin_id` bigint NOT NULL AUTO_INCREMENT,
-  `session_id` bigint NOT NULL,
-  `student_id` bigint NOT NULL,
-  `checkin_time` datetime NOT NULL,
-  `source` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  PRIMARY KEY (`checkin_id`),
-  KEY `fk_checkin_session` (`session_id`),
-  KEY `fk_checkin_student` (`student_id`),
-  CONSTRAINT `fk_checkin_session` FOREIGN KEY (`session_id`) REFERENCES `attendance_session` (`session_id`),
-  CONSTRAINT `fk_checkin_student` FOREIGN KEY (`student_id`) REFERENCES `student` (`student_id`)
+                                   `checkin_id` bigint NOT NULL AUTO_INCREMENT,
+                                   `session_id` bigint NOT NULL,
+                                   `student_id` bigint NOT NULL,
+                                   `checkin_time` datetime NOT NULL,
+                                   `source` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+                                   PRIMARY KEY (`checkin_id`),
+                                   KEY `fk_checkin_session` (`session_id`),
+                                   KEY `fk_checkin_student` (`student_id`),
+                                   CONSTRAINT `fk_checkin_session` FOREIGN KEY (`session_id`) REFERENCES `attendance_session` (`session_id`),
+                                   CONSTRAINT `fk_checkin_student` FOREIGN KEY (`student_id`) REFERENCES `student` (`student_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -503,16 +503,16 @@ DROP TABLE IF EXISTS `term`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `term` (
-  `term_id` bigint NOT NULL AUTO_INCREMENT,
-  `term_code` varchar(32) NOT NULL,
-  `term_name` varchar(64) NOT NULL,
-  `start_date` date NOT NULL,
-  `end_date` date NOT NULL,
-  `is_current` tinyint(1) NOT NULL DEFAULT '0',
-  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`term_id`),
-  UNIQUE KEY `term_code` (`term_code`)
+                        `term_id` bigint NOT NULL AUTO_INCREMENT,
+                        `term_code` varchar(32) NOT NULL,
+                        `term_name` varchar(64) NOT NULL,
+                        `start_date` date NOT NULL,
+                        `end_date` date NOT NULL,
+                        `is_current` tinyint(1) NOT NULL DEFAULT '0',
+                        `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                        PRIMARY KEY (`term_id`),
+                        UNIQUE KEY `term_code` (`term_code`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -525,6 +525,42 @@ LOCK TABLES `term` WRITE;
 INSERT INTO `term` VALUES (1,'2024-2025-1','2024-2025学年第一学期','2024-09-01','2025-01-15',1,'2025-12-08 23:09:39','2025-12-08 23:09:39');
 /*!40000 ALTER TABLE `term` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `message`
+--
+
+DROP TABLE IF EXISTS `message`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `message` (
+                           `message_id` bigint NOT NULL AUTO_INCREMENT,
+                           `receiver_type` varchar(32) NOT NULL COMMENT '接收者类型: STUDENT / STAFF / COUNSELOR',
+                           `receiver_id` bigint NOT NULL COMMENT '接收者ID',
+                           `sender_type` varchar(32) NOT NULL COMMENT '发送者类型: SYSTEM / STAFF / COUNSELOR',
+                           `sender_id` bigint DEFAULT NULL COMMENT '发送者ID',
+                           `message_type` varchar(32) NOT NULL COMMENT '消息类型: LEAVE_STATUS_CHANGE / TEACHER_CONFIRM / COUNSELOR_APPROVE',
+                           `content` text NOT NULL COMMENT '消息内容',
+                           `related_id` bigint DEFAULT NULL COMMENT '关联的请假单ID或其他业务ID',
+                           `is_read` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否已读',
+                           `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                           `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                           PRIMARY KEY (`message_id`),
+                           KEY `idx_receiver` (`receiver_type`, `receiver_id`),
+                           KEY `idx_created_at` (`created_at`),
+                           KEY `idx_is_read` (`is_read`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `message`
+--
+
+LOCK TABLES `message` WRITE;
+/*!40000 ALTER TABLE `message` DISABLE KEYS */;
+/*!40000 ALTER TABLE `message` ENABLE KEYS */;
+UNLOCK TABLES;
+
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
