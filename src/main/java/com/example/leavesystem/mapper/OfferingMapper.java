@@ -49,6 +49,21 @@ public interface OfferingMapper {
     @Delete("DELETE FROM offering WHERE offering_id = #{id}")
     int delete(Long id);
 
+    /**
+     * 根据一组 offeringId 批量查询开课记录
+     */
+    @Select("""
+        <script>
+        SELECT *
+        FROM offering
+        WHERE offering_id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+          #{id}
+        </foreach>
+        </script>
+        """)
+    List<Offering> findByIds(@Param("ids") List<Long> ids);
+
     @Select("SELECT * FROM offering")
     List<Offering> findAll();
 }

@@ -1,162 +1,224 @@
 package com.example.leavesystem;
 
 import com.example.leavesystem.entity.Message;
-import com.example.leavesystem.service.MessageService;
+import com.example.leavesystem.mapper.MessageMapper;
+import com.example.leavesystem.service.impl.MessageServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class MessageModuleTest {
 
     @Mock
-    private MessageService messageService;
+    private MessageMapper messageMapper;
+
+    @InjectMocks
+    private MessageServiceImpl messageService;
 
     @Test
-    void testSendMessageFunctionality() {
-        // 测试发送请假状态变更消息 - 方法返回void，不需要验证返回值
-        assertDoesNotThrow(() -> messageService.sendLeaveStatusChangeMessage(1L, "PENDING", "APPROVED", 1L));
+    void sendLeaveStatusChangeMessage_shouldInsertCorrectMessage() {
+        // when
+        messageService.sendLeaveStatusChangeMessage(1L, "PENDING", "APPROVED", 1001L);
 
-        // 验证方法被调用
-        verify(messageService, times(1))
-                .sendLeaveStatusChangeMessage(1L, "PENDING", "APPROVED", 1L);
+        // then
+        ArgumentCaptor<Message> captor = ArgumentCaptor.forClass(Message.class);
+        verify(messageMapper, times(1)).insertMessage(captor.capture());
+        verifyNoMoreInteractions(messageMapper);
+
+        Message msg = captor.getValue();
+        assertNotNull(msg);
+
+        assertEquals("STUDENT", msg.getReceiverType());
+        assertEquals(1001L, msg.getReceiverId());
+        assertEquals("SYSTEM", msg.getSenderType());
+        assertEquals("LEAVE_STATUS_CHANGE", msg.getMessageType());
+
+        assertNotNull(msg.getContent());
+        assertTrue(msg.getContent().contains("ID:1"));
+        assertTrue(msg.getContent().contains("PENDING"));
+        assertTrue(msg.getContent().contains("APPROVED"));
+
+        assertEquals(1L, msg.getRelatedId());
+        assertFalse(msg.getIsRead());
+        assertNotNull(msg.getCreatedAt());
     }
 
     @Test
-    void testSendTeacherConfirmMessage() {
-        // 测试发送教师确认消息
-        assertDoesNotThrow(() -> messageService.sendTeacherConfirmMessage(1L, 1L, 201L, "已确认"));
+    void sendTeacherConfirmMessage_shouldInsertCorrectMessage() {
+        // when
+        messageService.sendTeacherConfirmMessage(2L, 2002L, 3003L, "已确认");
 
-        // 验证方法被调用
-        verify(messageService, times(1))
-                .sendTeacherConfirmMessage(1L, 1L, 201L, "已确认");
+        // then
+        ArgumentCaptor<Message> captor = ArgumentCaptor.forClass(Message.class);
+        verify(messageMapper, times(1)).insertMessage(captor.capture());
+        verifyNoMoreInteractions(messageMapper);
+
+        Message msg = captor.getValue();
+        assertNotNull(msg);
+
+        assertEquals("STUDENT", msg.getReceiverType());
+        assertEquals(2002L, msg.getReceiverId());
+        assertEquals("STAFF", msg.getSenderType());
+        assertEquals(3003L, msg.getSenderId());
+        assertEquals("TEACHER_CONFIRM", msg.getMessageType());
+
+        assertNotNull(msg.getContent());
+        assertTrue(msg.getContent().contains("ID:2"));
+        assertTrue(msg.getContent().contains("已确认"));
+
+        assertEquals(2L, msg.getRelatedId());
+        assertFalse(msg.getIsRead());
+        assertNotNull(msg.getCreatedAt());
     }
 
     @Test
-    void testSendCounselorApproveMessage() {
-        // 测试发送辅导员批准消息
-        assertDoesNotThrow(() -> messageService.sendCounselorApproveMessage(1L, 1L, 301L, "AGREE"));
+    void sendCounselorApproveMessage_shouldInsertCorrectMessage_forAgree() {
+        // when
+        messageService.sendCounselorApproveMessage(3L, 111L, 222L, "AGREE");
 
-        // 验证方法被调用
-        verify(messageService, times(1))
-                .sendCounselorApproveMessage(1L, 1L, 301L, "AGREE");
+        // then
+        ArgumentCaptor<Message> captor = ArgumentCaptor.forClass(Message.class);
+        verify(messageMapper, times(1)).insertMessage(captor.capture());
+        verifyNoMoreInteractions(messageMapper);
+
+        Message msg = captor.getValue();
+        assertNotNull(msg);
+
+        // receiver / sender
+        assertEquals("STUDENT", msg.getReceiverType());
+        assertEquals(111L, msg.getReceiverId());
+        assertEquals("STAFF", msg.getSenderType());
+        assertEquals(222L, msg.getSenderId());
+
+        // message fields
+        assertEquals("COUNSELOR_APPROVE", msg.getMessageType());
+        assertEquals(3L, msg.getRelatedId());
+        assertFalse(msg.getIsRead());
+        assertNotNull(msg.getCreatedAt());
+
+        assertNotNull(msg.getContent());
+        assertTrue(msg.getContent().contains("批准"));
+        assertTrue(msg.getContent().contains("ID:3"));
     }
 
     @Test
-    void testGetMessageList() {
-        // 设置mock行为
-        when(messageService.getMessageList(anyString(), anyLong(), any(Integer.class), any(Integer.class)))
+    void sendCounselorApproveMessage_shouldInsertCorrectMessage_forReject() {
+        // when
+        messageService.sendCounselorApproveMessage(4L, 111L, 222L, "REJECT");
+
+        // then
+        ArgumentCaptor<Message> captor = ArgumentCaptor.forClass(Message.class);
+        verify(messageMapper, times(1)).insertMessage(captor.capture());
+        verifyNoMoreInteractions(messageMapper);
+
+        Message msg = captor.getValue();
+        assertNotNull(msg);
+
+        // receiver / sender
+        assertEquals("STUDENT", msg.getReceiverType());
+        assertEquals(111L, msg.getReceiverId());
+        assertEquals("STAFF", msg.getSenderType());
+        assertEquals(222L, msg.getSenderId());
+
+        // message fields
+        assertEquals("COUNSELOR_APPROVE", msg.getMessageType());
+        assertEquals(4L, msg.getRelatedId());
+        assertFalse(msg.getIsRead());
+        assertNotNull(msg.getCreatedAt());
+
+        assertNotNull(msg.getContent());
+        assertTrue(msg.getContent().contains("拒绝"));
+        assertTrue(msg.getContent().contains("ID:4"));
+    }
+
+    @Test
+    void getMessageList_page1_size10_shouldUseOffset0() {
+        // offset=0, size=10（注意顺序）
+        when(messageMapper.selectMessagesByReceiverWithPaging(eq("STUDENT"), eq(1L), eq(0), eq(10)))
+                .thenReturn(Collections.emptyList());
+
+        List<Message> list = messageService.getMessageList("STUDENT", 1L, 1, 10);
+
+        assertNotNull(list);
+        assertEquals(0, list.size());
+
+        verify(messageMapper, times(1))
+                .selectMessagesByReceiverWithPaging("STUDENT", 1L, 0, 10);
+        verifyNoMoreInteractions(messageMapper);
+    }
+
+    @Test
+    void getMessageList_page2_size10_shouldUseOffset10() {
+        // page=2,size=10 => offset=10,size=10（注意顺序）
+        when(messageMapper.selectMessagesByReceiverWithPaging(eq("STUDENT"), eq(1L), eq(10), eq(10)))
                 .thenReturn(List.of(new Message()));
 
-        // 测试获取消息列表
-        List<Message> messages = messageService.getMessageList("STUDENT", 1L, 1, 10);
-        assertNotNull(messages);
-        assertFalse(messages.isEmpty());
+        List<Message> list = messageService.getMessageList("STUDENT", 1L, 2, 10);
 
-        // 验证方法被调用
-        verify(messageService, times(1))
-                .getMessageList("STUDENT", 1L, 1, 10);
+        assertNotNull(list);
+        assertEquals(1, list.size());
+
+        verify(messageMapper, times(1))
+                .selectMessagesByReceiverWithPaging("STUDENT", 1L, 10, 10);
+        verifyNoMoreInteractions(messageMapper);
+    }
+
+
+    @Test
+    void getUnreadCount_shouldReturnMapperValue() {
+        when(messageMapper.selectUnreadCount("STUDENT", 1L)).thenReturn(5);
+
+        int count = messageService.getUnreadCount("STUDENT", 1L);
+
+        assertEquals(5, count);
+        verify(messageMapper, times(1)).selectUnreadCount("STUDENT", 1L);
+        verifyNoMoreInteractions(messageMapper);
     }
 
     @Test
-    void testGetUnreadCount() {
-        // 设置mock行为
-        when(messageService.getUnreadCount(anyString(), anyLong()))
-                .thenReturn(5);
+    void markAsRead_shouldNotThrow_whenUpdated() {
+        when(messageMapper.updateMessageAsReadForReceiver(1L, "STUDENT", 1L)).thenReturn(1);
 
-        // 测试获取未读消息数量
-        int unreadCount = messageService.getUnreadCount("STUDENT", 1L);
-        assertEquals(5, unreadCount);
+        assertDoesNotThrow(() -> messageService.markAsRead(1L, "STUDENT", 1L));
 
-        // 验证方法被调用
-        verify(messageService, times(1))
-                .getUnreadCount("STUDENT", 1L);
+        verify(messageMapper, times(1)).updateMessageAsReadForReceiver(1L, "STUDENT", 1L);
+        verifyNoMoreInteractions(messageMapper);
     }
 
     @Test
-    void testMarkMessageAsRead() {
-        // 测试标记消息为已读
-        assertDoesNotThrow(() -> messageService.markAsRead(1L));
+    void markAsRead_shouldThrow_whenNotOwnedOrNotExist() {
+        when(messageMapper.updateMessageAsReadForReceiver(1L, "STUDENT", 1L)).thenReturn(0);
 
-        // 验证方法被调用
-        verify(messageService, times(1))
-                .markAsRead(1L);
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> messageService.markAsRead(1L, "STUDENT", 1L));
+
+        // 兼容你现在实现：可能是“无权限”也可能是“不存在”
+        assertNotNull(ex.getMessage());
+        assertTrue(ex.getMessage().contains("无权限") || ex.getMessage().contains("不存在"));
+
+        verify(messageMapper, times(1)).updateMessageAsReadForReceiver(1L, "STUDENT", 1L);
+        verifyNoMoreInteractions(messageMapper);
     }
 
     @Test
-    void testBatchMarkAsRead() {
-        // 测试批量标记消息为已读
-        assertDoesNotThrow(() -> messageService.batchMarkAsRead("STUDENT", 1L));
+    void batchMarkAsRead_shouldReturnUpdatedRows() {
+        when(messageMapper.updateMessagesAsRead("STUDENT", 1L)).thenReturn(7);
 
-        // 验证方法被调用
-        verify(messageService, times(1))
-                .batchMarkAsRead("STUDENT", 1L);
-    }
+        int updated = messageService.batchMarkAsRead("STUDENT", 1L);
 
-    @Test
-    void testMessageIntegration() {
-        // 设置mock行为
-        when(messageService.getMessageList(anyString(), anyLong(), any(Integer.class), any(Integer.class)))
-                .thenReturn(List.of(new Message()));
-        when(messageService.getUnreadCount(anyString(), anyLong()))
-                .thenReturn(3);
-
-        // 测试消息模块的集成功能
-        // 发送消息
-        assertDoesNotThrow(() -> messageService.sendLeaveStatusChangeMessage(1L, "PENDING", "APPROVED", 1L));
-
-        // 获取消息列表
-        List<Message> messages = messageService.getMessageList("STUDENT", 1L, 1, 10);
-        assertNotNull(messages);
-
-        // 获取未读数量
-        int unreadCount = messageService.getUnreadCount("STUDENT", 1L);
-        assertTrue(unreadCount >= 0);
-
-        // 标记为已读
-        assertDoesNotThrow(() -> messageService.markAsRead(1L));
-
-        // 验证所有方法都被调用
-        verify(messageService, times(1)).sendLeaveStatusChangeMessage(anyLong(), anyString(), anyString(), anyLong());
-        verify(messageService, times(1)).getMessageList(anyString(), anyLong(), any(Integer.class), any(Integer.class));
-        verify(messageService, times(1)).getUnreadCount(anyString(), anyLong());
-        verify(messageService, times(1)).markAsRead(anyLong());
-    }
-
-    @Test
-    void testMessageWithDifferentReceiverTypes() {
-        // 设置mock行为
-        when(messageService.getUnreadCount("STUDENT", 1L)).thenReturn(5);
-        when(messageService.getUnreadCount("STAFF", 1L)).thenReturn(3);
-        when(messageService.getUnreadCount("COUNSELOR", 1L)).thenReturn(2);
-        when(messageService.getMessageList("STUDENT", 1L, 1, 10)).thenReturn(List.of(new Message()));
-        when(messageService.getMessageList("STAFF", 1L, 1, 10)).thenReturn(List.of(new Message()));
-        when(messageService.getMessageList("COUNSELOR", 1L, 1, 10)).thenReturn(List.of(new Message()));
-
-        // 测试向不同类型接收者发送消息
-        int studentUnreadCount = messageService.getUnreadCount("STUDENT", 1L);
-        int teacherUnreadCount = messageService.getUnreadCount("STAFF", 1L);
-        int counselorUnreadCount = messageService.getUnreadCount("COUNSELOR", 1L);
-
-        assertTrue(studentUnreadCount >= 0);
-        assertTrue(teacherUnreadCount >= 0);
-        assertTrue(counselorUnreadCount >= 0);
-
-        List<Message> studentMessages = messageService.getMessageList("STUDENT", 1L, 1, 10);
-        List<Message> teacherMessages = messageService.getMessageList("STAFF", 1L, 1, 10);
-        List<Message> counselorMessages = messageService.getMessageList("COUNSELOR", 1L, 1, 10);
-
-        assertNotNull(studentMessages);
-        assertNotNull(teacherMessages);
-        assertNotNull(counselorMessages);
+        assertEquals(7, updated);
+        verify(messageMapper, times(1)).updateMessagesAsRead("STUDENT", 1L);
+        verifyNoMoreInteractions(messageMapper);
     }
 }

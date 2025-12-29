@@ -20,14 +20,19 @@ public class Result<T> {
     public static <T> Result<T> failure(String message) {
         return new Result<>(-1, message, null);
     }
-    // 添加error方法，用于返回指定错误码和错误信息的结果
-    public static <T> Result<T> error(int code, String message) {return new Result<>(code, message, null);}
 
-    public static Result ok() {
-        return null;
+    // 返回指定错误码
+    public static <T> Result<T> error(int code, String message) {
+        return new Result<>(code, message, null);
     }
 
-    public static Result fail(String 删除失败) {
-        return null;
+    /** 常用：成功但无 data */
+    public static Result<Void> ok() {              // ✅ 修改：不再返回 null
+        return Result.success(null);
+    }
+
+    /** 常用：失败（等同 failure） */
+    public static Result<Void> fail(String message) { // ✅ 修改：参数名改成 message
+        return Result.failure(message);
     }
 }

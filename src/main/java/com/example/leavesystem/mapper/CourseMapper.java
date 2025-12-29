@@ -40,4 +40,16 @@ public interface CourseMapper {
 
     @Delete("DELETE FROM course WHERE course_id = #{id}")
     int delete(Long id);
+
+    @Select("""
+    <script>
+    SELECT *
+    FROM course
+    WHERE course_id IN
+    <foreach collection="ids" item="id" open="(" separator="," close=")">
+      #{id}
+    </foreach>
+    </script>
+    """)
+    List<Course> findByIds(@Param("ids") List<Long> ids);
 }

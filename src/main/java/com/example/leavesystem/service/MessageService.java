@@ -32,12 +32,13 @@ public interface MessageService {
     int getUnreadCount(String receiverType, Long receiverId);
 
     /**
-     * 标记消息为已读
+     * 标记消息为已读（只能标记“属于当前登录用户”的消息）
      */
-    void markAsRead(Long messageId);
+    void markAsRead(Long messageId, String receiverType, Long receiverId); // MOD
 
     /**
-     * 批量标记消息为已读
+     * 批量标记当前登录用户的消息为已读
+     * @return 本次更新的行数
      */
-    void batchMarkAsRead(String receiverType, Long receiverId);
+    int batchMarkAsRead(String receiverType, Long receiverId); // MOD
 }

@@ -41,4 +41,51 @@ public interface AbsenceMapper {
         WHERE absence_id = #{absenceId}
         """)
     int update(Absence absence);
+
+    // ========= 批量插入缺勤记录，用于关闭签到场次后一次性写入 =========
+
+    @Insert("""
+        <script>
+        INSERT INTO absence
+          (student_id, offering_id, course_date,
+           section_start, section_end, source, status,
+           makeup_deadline, converted_leave_id,
+           created_at, updated_at)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+          (#{item.studentId}, #{item.offeringId}, #{item.courseDate},
+           #{item.sectionStart}, #{item.sectionEnd}, #{item.source}, #{item.status},
+           #{item.makeupDeadline}, #{item.convertedLeaveId},
+           NOW(), NOW())
+        </foreach>
+        </script>
+        """)
+    int insertBatch(@Param("list") List<Absence> list);
+
+    // ========= 并发安全更新：只有当前状态=oldStatus 才更新成功 =========
+
+    @Update("""
+    UPDATE absence
+    SET status = #{newStatus},
+        updated_at = NOW()
+    WHERE absence_id = #{absenceId}
+      AND status = #{oldStatus}
+    """)
+    int updateStatusIfCurrent(@Param("absenceId") Long absenceId,
+                              @Param("oldStatus") String oldStatus,
+                              @Param("newStatus") String newStatus);
+
+    @Update("""
+    UPDATE absence
+    SET status = #{newStatus},
+        converted_leave_id = #{convertedLeaveId},
+        updated_at = NOW()
+    WHERE absence_id = #{absenceId}
+      AND status = #{oldStatus}
+    """)
+    int updateStatusAndConvertedIfCurrent(@Param("absenceId") Long absenceId,
+                                          @Param("oldStatus") String oldStatus,
+                                          @Param("newStatus") String newStatus,
+                                          @Param("convertedLeaveId") Long convertedLeaveId);
+
 }

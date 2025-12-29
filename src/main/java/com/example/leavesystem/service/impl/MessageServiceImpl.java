@@ -64,7 +64,6 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public List<Message> getMessageList(String receiverType, Long receiverId, Integer page, Integer size) {
-        // 计算偏移量
         int offset = (page - 1) * size;
         return messageMapper.selectMessagesByReceiverWithPaging(receiverType, receiverId, offset, size);
     }
@@ -74,13 +73,20 @@ public class MessageServiceImpl implements MessageService {
         return messageMapper.selectUnreadCount(receiverType, receiverId);
     }
 
+    // ================= MOD：防越权 =================
+
     @Override
-    public void markAsRead(Long messageId) {
-        messageMapper.updateMessageAsRead(messageId);
+    public void markAsRead(Long messageId, String receiverType, Long receiverId) {
+        // 只允许把“属于自己的消息”标记为已读
+        int updated = messageMapper.updateMessageAsReadForReceiver(messageId, receiverType, receiverId);
+        if (updated == 0) {
+            throw new IllegalStateException("消息不存在或无权限操作");
+        }
     }
 
     @Override
-    public void batchMarkAsRead(String receiverType, Long receiverId) {
-        messageMapper.updateMessagesAsRead(receiverType, receiverId);
+    public int batchMarkAsRead(String receiverType, Long receiverId) {
+        // 返回更新条数，方便测试/前端刷新未读数
+        return messageMapper.updateMessagesAsRead(receiverType, receiverId);
     }
 }

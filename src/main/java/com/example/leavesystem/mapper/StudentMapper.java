@@ -46,4 +46,16 @@ public interface StudentMapper {
 
     @Delete("DELETE FROM student WHERE student_id = #{id}")
     int delete(Long id);
+
+    @Select("""
+    <script>
+    SELECT *
+    FROM student
+    WHERE student_id IN
+    <foreach collection="ids" item="id" open="(" separator="," close=")">
+      #{id}
+    </foreach>
+    </script>
+    """)
+    List<Student> findByIds(@Param("ids") List<Long> ids);
 }

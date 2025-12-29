@@ -43,13 +43,25 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        // 注册认证拦截器
-        registry.addInterceptor(authInterceptor(objectMapper()))
-                .addPathPatterns("/api/**")  // 拦截所有API请求
-                .excludePathPatterns("/api/auth/login", "/api/auth/logout");  // 排除登录和登出接口
 
-        // 注册角色权限拦截器
+        registry.addInterceptor(authInterceptor(objectMapper()))
+                .addPathPatterns("/api/**", "/admin/**")
+                .excludePathPatterns(
+                        "/api/auth/login",
+                        "/api/auth/logout",
+                        "/error",
+                        "/favicon.ico",
+                        "/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg", "/**/*.jpeg", "/**/*.svg"
+                );
+
         registry.addInterceptor(roleInterceptor(objectMapper()))
-                .addPathPatterns("/api/**");  // 拦截所有API请求
+                .addPathPatterns("/api/**", "/admin/**")
+                .excludePathPatterns( // ✅ 关键：Role 也要排除登录/登出
+                        "/api/auth/login",
+                        "/api/auth/logout",
+                        "/error",
+                        "/favicon.ico",
+                        "/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg", "/**/*.jpeg", "/**/*.svg"
+                );
     }
 }

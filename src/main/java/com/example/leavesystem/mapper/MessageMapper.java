@@ -2,7 +2,6 @@ package com.example.leavesystem.mapper;
 
 import com.example.leavesystem.entity.Message;
 import org.apache.ibatis.annotations.*;
-import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
@@ -16,7 +15,7 @@ public interface MessageMapper {
           (#{receiverType}, #{receiverId}, #{senderType}, #{senderId}, #{messageType}, #{content}, #{relatedId}, #{isRead}, #{createdAt})
         """)
     @Options(useGeneratedKeys = true, keyProperty = "messageId")
-    void insertMessage(Message message);
+    int insertMessage(Message message); // MOD: 返回 int（可选，但更规范）
 
     @Select("""
         SELECT * FROM message
@@ -44,15 +43,27 @@ public interface MessageMapper {
     int selectUnreadCount(@Param("receiverType") String receiverType,
                           @Param("receiverId") Long receiverId);
 
-    @Update("""
-        UPDATE message SET is_read = 1 WHERE message_id = #{messageId}
-        """)
-    void updateMessageAsRead(@Param("messageId") Long messageId);
+    // ================= MOD: 防越权 =================
 
     @Update("""
-        UPDATE message SET is_read = 1
-        WHERE receiver_type = #{receiverType} AND receiver_id = #{receiverId}
+        UPDATE message
+        SET is_read = 1
+        WHERE message_id = #{messageId}
+          AND receiver_type = #{receiverType}
+          AND receiver_id = #{receiverId}
+          AND is_read = 0
         """)
-    void updateMessagesAsRead(@Param("receiverType") String receiverType,
-                              @Param("receiverId") Long receiverId);
+    int updateMessageAsReadForReceiver(@Param("messageId") Long messageId,
+                                       @Param("receiverType") String receiverType,
+                                       @Param("receiverId") Long receiverId);
+
+    @Update("""
+        UPDATE message
+        SET is_read = 1
+        WHERE receiver_type = #{receiverType}
+          AND receiver_id = #{receiverId}
+          AND is_read = 0
+        """)
+    int updateMessagesAsRead(@Param("receiverType") String receiverType,
+                             @Param("receiverId") Long receiverId);
 }

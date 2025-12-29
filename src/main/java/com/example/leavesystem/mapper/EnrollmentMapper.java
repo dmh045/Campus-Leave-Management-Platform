@@ -45,4 +45,42 @@ public interface EnrollmentMapper {
 
     @Select("SELECT * FROM enrollment")
     List<Enrollment> findAll();
+
+    // ===== 为考勤子系统新增的 3 个方法 =====
+
+    /**
+     * 查询某次开课下，所有“在读（ENROLLED）”学生的ID列表
+     */
+    @Select("""
+        SELECT student_id
+        FROM enrollment
+        WHERE offering_id = #{offeringId}
+          AND status = 'ENROLLED'
+        """)
+    List<Long> listStudentIdsByOfferingId(Long offeringId);
+
+    /**
+     * 统计某门课中，某个学生是否已选课（且为 ENROLLED）
+     * 用于学生扫码签到时做合法性校验
+     */
+    @Select("""
+        SELECT COUNT(*)
+        FROM enrollment
+        WHERE offering_id = #{offeringId}
+          AND student_id = #{studentId}
+          AND status = 'ENROLLED'
+        """)
+    int countByOfferingIdAndStudentId(@Param("offeringId") Long offeringId,
+                                      @Param("studentId") Long studentId);
+
+    /**
+     * 统计某次开课下 “应到人数”（只算 ENROLLED 的）
+     */
+    @Select("""
+        SELECT COUNT(*)
+        FROM enrollment
+        WHERE offering_id = #{offeringId}
+          AND status = 'ENROLLED'
+        """)
+    int countByOfferingId(Long offeringId);
 }

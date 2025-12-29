@@ -39,4 +39,16 @@ public interface ClazzMapper {
     @Delete("DELETE FROM `class` WHERE class_id = #{id}")
     int delete(Long id);
 
+    @Select("""
+    <script>
+    SELECT *
+    FROM `class`
+    WHERE class_id IN
+    <foreach collection="ids" item="id" open="(" separator="," close=")">
+      #{id}
+    </foreach>
+    </script>
+    """)
+    List<Clazz> findByIds(@Param("ids") List<Long> ids);
+
 }
