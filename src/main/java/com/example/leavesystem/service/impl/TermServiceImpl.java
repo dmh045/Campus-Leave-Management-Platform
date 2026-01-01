@@ -6,6 +6,7 @@ import com.example.leavesystem.service.TermService;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TermServiceImpl implements TermService {
@@ -41,24 +42,22 @@ public class TermServiceImpl implements TermService {
     }
 
     @Override
+    @Transactional
     public Term openTerm(Long id) {
         Term t = termMapper.selectById(id);
         if (t == null) return null;
-        // 修改为操作isCurrent字段
-        t.setIsCurrent(true);
-        termMapper.updateById(t);
-        return t;
+
+        termMapper.setOnlyCurrent(id);
+        return termMapper.selectById(id);
     }
 
     @Override
+    @Transactional
     public Term closeTerm(Long id) {
         Term t = termMapper.selectById(id);
         if (t == null) return null;
-        // 修改为操作isCurrent字段
-        t.setIsCurrent(false);
-        termMapper.updateById(t);
-        return t;
-    }
 
-    // 删除多余的setId方法
+        termMapper.closeById(id);
+        return termMapper.selectById(id);
+    }
 }

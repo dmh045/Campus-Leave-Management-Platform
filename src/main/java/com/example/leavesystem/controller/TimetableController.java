@@ -24,29 +24,25 @@ public class TimetableController {
      * 示例：GET /api/timetable/student/day?studentId=1&date=2024-10-10
      */
     @GetMapping("/student/day")
-    @RequiresRoles(value = {"STUDENT", "COUNSELOR", "ADMIN"}, allMatch = false) // MOD: 至少登录，允许这三类
+    @RequiresRoles(value = {"STUDENT", "COUNSELOR", "ADMIN"}, allMatch = false)
     public Result<List<StudentDayCourseDTO>> studentDay(
-            @RequestParam Long studentId,
+            @RequestParam(required = false) Long studentId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 
-        // MOD: 学生只能查看自己的课表（防横向越权）
         String role = AuthContext.getCurrentRole();
-        if ("STUDENT".equalsIgnoreCase(role)) {
-            Long currentId = AuthContext.getCurrentUserId();
-            if (studentId != null && !studentId.equals(currentId)) {
-                throw new IllegalStateException("无权限查看其他学生课表");
-            }
-            studentId = currentId; // 强制以登录态为准
-        }
 
-        // MOD(可选增强)：辅导员只能查自己负责班级的学生
-        // if ("COUNSELOR".equalsIgnoreCase(role)) {
-        //     Long counselorId = AuthContext.getCurrentUserId();
-        //     boolean ok = timetableService.canCounselorViewStudent(counselorId, studentId);
-        //     if (!ok) throw new IllegalStateException("无权限查看该学生课表");
-        // }
+        if ("STUDENT".equalsIgnoreCase(role)) {
+            // 学生只看自己：不需要 studentId 参数
+            studentId = AuthContext.getCurrentUserId();
+        } else {
+            // 辅导员/管理员查别人：必须带 studentId
+            if (studentId == null) {
+                return Result.error(400, "缺少参数 studentId");
+            }
+        }
 
         List<StudentDayCourseDTO> list = timetableService.getStudentDayTimetable(studentId, date);
         return Result.success(list);
     }
+
 }
