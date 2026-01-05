@@ -48,4 +48,7 @@ public interface LeaveService {
     LeaveDetailDTO getLeaveDetail(Long leaveId);
 
     List<CoursePendingImpactDTO> listPendingByCourseForTeacher(Long teacherId);
+
+    List<CounselorPendingLeaveDTO> listAllForCounselor(Long counselorId);
+
 }

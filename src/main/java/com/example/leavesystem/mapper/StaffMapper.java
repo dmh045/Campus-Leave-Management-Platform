@@ -19,6 +19,18 @@ public interface StaffMapper {
     @Select("SELECT * FROM staff WHERE staff_no = #{staffNo}")
     Staff selectByStaffNo(String staffNo);
 
+    @Select("""
+<script>
+SELECT * FROM staff
+WHERE staff_id IN
+<foreach collection="ids" item="id" open="(" separator="," close=")">
+  #{id}
+</foreach>
+</script>
+""")
+    List<Staff> findByIds(@Param("ids") List<Long> ids);
+
+
     @Insert("""
         INSERT INTO staff
           (staff_no, name, gender, phone, email, is_active, created_at, updated_at)
@@ -43,4 +55,6 @@ public interface StaffMapper {
 
     @Delete("DELETE FROM staff WHERE staff_id = #{id}")
     int delete(Long id);
+
+
 }

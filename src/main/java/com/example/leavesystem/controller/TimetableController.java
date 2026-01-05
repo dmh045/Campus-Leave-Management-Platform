@@ -8,7 +8,7 @@ import com.example.leavesystem.service.TimetableService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
-
+import com.example.leavesystem.dto.TeacherDayCourseDTO;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -44,5 +44,27 @@ public class TimetableController {
         List<StudentDayCourseDTO> list = timetableService.getStudentDayTimetable(studentId, date);
         return Result.success(list);
     }
+
+    @GetMapping("/teacher/day")
+    @RequiresRoles(value = {"TEACHER", "COUNSELOR", "ADMIN"}, allMatch = false)
+    public Result<List<TeacherDayCourseDTO>> teacherDay(
+            @RequestParam(required = false) Long teacherId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+
+        String role = AuthContext.getCurrentRole();
+
+        if ("TEACHER".equalsIgnoreCase(role)) {
+            // 老师只看自己
+            teacherId = AuthContext.getCurrentUserId();
+        } else {
+            // 其他角色查老师：必须带 teacherId
+            if (teacherId == null) {
+                return Result.error(400, "缺少参数 teacherId");
+            }
+        }
+
+        return Result.success(timetableService.getTeacherDayTimetable(teacherId, date));
+    }
+
 
 }

@@ -49,6 +49,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .excludePathPatterns(
                         "/api/auth/login",
                         "/api/auth/logout",
+                        "/api/files/**",
                         "/error",
                         "/favicon.ico",
                         "/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg", "/**/*.jpeg", "/**/*.svg"
@@ -59,6 +60,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .excludePathPatterns( // ✅ 关键：Role 也要排除登录/登出
                         "/api/auth/login",
                         "/api/auth/logout",
+                        "/api/files/**",
                         "/error",
                         "/favicon.ico",
                         "/**/*.css", "/**/*.js", "/**/*.png", "/**/*.jpg", "/**/*.jpeg", "/**/*.svg"

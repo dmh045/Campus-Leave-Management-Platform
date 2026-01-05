@@ -178,6 +178,16 @@ public class LeaveController {
         return Result.success(leaveService.listPendingByCourseForTeacher(teacherId));
     }
 
+    @GetMapping("/counselor/list")
+    @RequiresRoles(value = "COUNSELOR", allMatch = false)
+    public Result<List<CounselorPendingLeaveDTO>> listForCounselor(
+            @RequestParam(required = false) Long counselorId
+    ) {
+        counselorId = selfIdOrCurrent(counselorId, "counselorId");
+        return Result.success(leaveService.listAllForCounselor(counselorId));
+    }
+
+
     // ====== 请求体 DTO ======
 
     @Data

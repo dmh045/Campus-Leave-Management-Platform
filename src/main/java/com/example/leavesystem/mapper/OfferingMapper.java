@@ -66,4 +66,7 @@ public interface OfferingMapper {
 
     @Select("SELECT * FROM offering")
     List<Offering> findAll();
+
+    @Select("SELECT * FROM offering WHERE teacher_id = #{teacherId}")
+    List<Offering> findByTeacherId(@Param("teacherId") Long teacherId);
 }

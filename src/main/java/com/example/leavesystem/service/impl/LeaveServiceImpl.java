@@ -24,13 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.leavesystem.dto.CoursePendingImpactDTO;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.ArrayList;
-import java.util.Collections;
 
 
 @Service
@@ -311,17 +307,30 @@ public class LeaveServiceImpl implements LeaveService {
             Long leaveId = leave.getLeaveId();
             resultIds.add(leaveId);
 
-            // 2) 影响节次（对所有学生相同）
-            if (request.getImpacts() != null) {
-                for (PublicLeaveBatchRequest.ImpactItem item : request.getImpacts()) {
-                    if (item.getOfferingId() == null) {
-                        continue;
-                    }
+            // 2) 影响节次
+            //    - 如果前端传了 impacts：按传入的 impacts 写入（对所有学生相同）
+            //    - 如果前端没传 / 传空：按【每个学生所属班级】自动匹配 time 区间内的 offering 节次
+            List<PublicLeaveBatchRequest.ImpactItem> impactsToUse = request.getImpacts();
+            if (impactsToUse == null || impactsToUse.isEmpty()) {
+                impactsToUse = buildAutoImpactsForStudent(request.getTermId(), student.getClassId(), request.getStartTime(), request.getEndTime());
+            }
 
-                    Offering offering = offeringMapper.findById(item.getOfferingId());
-                    if (offering == null) {
-                        throw new IllegalArgumentException("开课记录不存在: " + item.getOfferingId());
-                    }
+            int inserted = 0;
+            if (impactsToUse != null && !impactsToUse.isEmpty()) {
+                // 批量拉 offering，避免逐条 findById
+                Set<Long> offIds = impactsToUse.stream()
+                        .map(PublicLeaveBatchRequest.ImpactItem::getOfferingId)
+                        .filter(Objects::nonNull)
+                        .collect(java.util.stream.Collectors.toSet());
+
+                Map<Long, Offering> offMap = offIds.isEmpty() ? java.util.Map.of()
+                        : offeringMapper.findByIds(new java.util.ArrayList<>(offIds)).stream()
+                        .collect(java.util.stream.Collectors.toMap(Offering::getOfferingId, x -> x));
+
+                for (PublicLeaveBatchRequest.ImpactItem item : impactsToUse) {
+                    if (item.getOfferingId() == null) continue;
+                    Offering offering = offMap.get(item.getOfferingId());
+                    if (offering == null) continue;
 
                     LeaveImpact impact = new LeaveImpact();
                     impact.setLeaveId(leaveId);
@@ -335,8 +344,15 @@ public class LeaveServiceImpl implements LeaveService {
                     impact.setRemark(null);
 
                     leaveImpactMapper.insert(impact);
+                    inserted++;
                 }
             }
+
+// 如果完全没有产生 impacts：这张公假无需老师确认，直接通过
+            if (inserted == 0) {
+                leaveRequestMapper.updateStatusSimple(leaveId, "APPROVED");
+            }
+
 
             // 3) 写辅导员“同意”记录（视为已同意）
             Approval approval = new Approval();
@@ -358,6 +374,38 @@ public class LeaveServiceImpl implements LeaveService {
     @Override
     public List<TeacherPendingImpactDTO> listPendingForTeacher(Long teacherId) {
         return teacherLeaveQueryMapper.findPendingByTeacher(teacherId);
+    }
+
+    private List<PublicLeaveBatchRequest.ImpactItem> buildAutoImpactsForStudent(
+            Long termId, Long classId, LocalDateTime startTime, LocalDateTime endTime
+    ) {
+        if (termId == null || classId == null || startTime == null || endTime == null) {
+            return List.of();
+        }
+
+        List<Offering> offs = offeringMapper.findByTermAndClass(termId, classId);
+        if (offs == null || offs.isEmpty()) return List.of();
+
+        LocalDate start = startTime.toLocalDate();
+        LocalDate end = endTime.toLocalDate();
+
+        List<PublicLeaveBatchRequest.ImpactItem> res = new ArrayList<>();
+        for (Offering o : offs) {
+            Integer wd = o.getWeekDay();
+            if (wd == null || wd < 1 || wd > 7) continue;
+
+            for (LocalDate d = start; !d.isAfter(end); d = d.plusDays(1)) {
+                if (d.getDayOfWeek().getValue() != wd) continue;
+
+                PublicLeaveBatchRequest.ImpactItem item = new PublicLeaveBatchRequest.ImpactItem();
+                item.setOfferingId(o.getOfferingId());
+                item.setCourseDate(d);
+                item.setSectionStart(o.getSectionStart());
+                item.setSectionEnd(o.getSectionEnd());
+                res.add(item);
+            }
+        }
+        return res;
     }
 
     /**
@@ -570,5 +618,9 @@ public class LeaveServiceImpl implements LeaveService {
         return new ArrayList<>(courseMap.values());
     }
 
+    @Override
+    public List<CounselorPendingLeaveDTO> listAllForCounselor(Long counselorId) {
+        return counselorLeaveQueryMapper.findAllByCounselor(counselorId);
+    }
 
 }

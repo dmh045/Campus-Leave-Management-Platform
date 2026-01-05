@@ -51,4 +51,9 @@ public interface ClazzMapper {
     """)
     List<Clazz> findByIds(@Param("ids") List<Long> ids);
 
+    @Select("SELECT * FROM `class` WHERE counselor_id = #{counselorId}")
+    List<Clazz> findByCounselorId(@Param("counselorId") Long counselorId);
+
+
+
 }

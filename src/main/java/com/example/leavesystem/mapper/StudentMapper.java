@@ -58,4 +58,8 @@ public interface StudentMapper {
     </script>
     """)
     List<Student> findByIds(@Param("ids") List<Long> ids);
+
+    @Select("SELECT * FROM student WHERE class_id = #{classId} ORDER BY student_no")
+    List<Student> findByClassId(Long classId);
+
 }

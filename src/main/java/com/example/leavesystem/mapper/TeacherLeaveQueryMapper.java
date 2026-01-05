@@ -12,30 +12,31 @@ import java.util.List;
 public interface TeacherLeaveQueryMapper {
 
     @Select("""
-        SELECT
-          li.impact_id     AS impactId,
-          li.leave_id      AS leaveId,
-          lr.student_id    AS studentId,
-          s.name           AS studentName,
-          c.class_name     AS className,
-          co.course_name   AS courseName,
-          li.course_date   AS courseDate,
-          li.section_start AS sectionStart,
-          li.section_end   AS sectionEnd,
-          lr.leave_type    AS leaveType,
-          lr.reason        AS reason,
-          lr.status        AS leaveStatus
-        FROM leave_impact li
-          JOIN leave_request lr ON li.leave_id   = lr.leave_id
-          JOIN student s        ON lr.student_id = s.student_id
-          JOIN `class` c        ON s.class_id    = c.class_id
-          JOIN offering o       ON li.offering_id = o.offering_id
-          JOIN course co        ON o.course_id   = co.course_id
-        WHERE li.teacher_id = #{teacherId}
-          AND li.confirm_status = 'PENDING'
-          AND lr.status = 'PENDING_TEACHER'
-        ORDER BY li.course_date, li.section_start
-        """)
+    SELECT
+      li.impact_id     AS impactId,
+      li.leave_id      AS leaveId,
+      lr.student_id    AS studentId,
+      s.name           AS studentName,
+      c.class_name     AS className,
+      co.course_name   AS courseName,
+      li.course_date   AS courseDate,
+      li.section_start AS sectionStart,
+      li.section_end   AS sectionEnd,
+      lr.leave_type    AS leaveType,
+      lr.reason        AS reason,
+      lr.proof_url     AS proofUrl,     -- ✅ 放这里
+      lr.status        AS leaveStatus   -- ✅ 最后一个字段不加逗号
+    FROM leave_impact li
+      JOIN leave_request lr ON li.leave_id   = lr.leave_id
+      JOIN student s        ON lr.student_id = s.student_id
+      JOIN `class` c        ON s.class_id    = c.class_id
+      JOIN offering o       ON li.offering_id = o.offering_id
+      JOIN course co        ON o.course_id   = co.course_id
+    WHERE li.teacher_id = #{teacherId}
+      AND li.confirm_status = 'PENDING'
+      AND lr.status = 'PENDING_TEACHER'
+    ORDER BY li.course_date, li.section_start
+    """)
     List<TeacherPendingImpactDTO> findPendingByTeacher(@Param("teacherId") Long teacherId);
 
     @Select("""
@@ -52,7 +53,8 @@ public interface TeacherLeaveQueryMapper {
       li.section_end   AS sectionEnd,
       lr.leave_type    AS leaveType,
       lr.reason        AS reason,
-      lr.status        AS leaveStatus
+      lr.proof_url     AS proofUrl,     -- ✅
+      lr.status        AS leaveStatus   -- ✅
     FROM leave_impact li
       JOIN leave_request lr ON li.leave_id   = lr.leave_id
       JOIN student s        ON lr.student_id = s.student_id
@@ -65,4 +67,5 @@ public interface TeacherLeaveQueryMapper {
     ORDER BY co.course_id, li.course_date, li.section_start
     """)
     List<TeacherPendingImpactDTO> findPendingByCourse(@Param("teacherId") Long teacherId);
+
 }

@@ -5,7 +5,7 @@ import com.example.leavesystem.mapper.TimetableMapper;
 import com.example.leavesystem.service.TimetableService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
+import com.example.leavesystem.dto.TeacherDayCourseDTO;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -21,5 +21,13 @@ public class TimetableServiceImpl implements TimetableService {
             throw new IllegalArgumentException("studentId 和 date 不能为空");
         }
         return timetableMapper.findDayCourses(studentId, date);
+    }
+
+    @Override
+    public List<TeacherDayCourseDTO> getTeacherDayTimetable(Long teacherId, LocalDate date) {
+        if (teacherId == null || date == null) {
+            throw new IllegalArgumentException("teacherId 和 date 不能为空");
+        }
+        return timetableMapper.findTeacherDayCourses(teacherId, date);
     }
 }

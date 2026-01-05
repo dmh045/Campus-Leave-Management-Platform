@@ -19,4 +19,5 @@ public class TeacherPendingImpactDTO {
     private String leaveType;
     private String reason;
     private String leaveStatus;
+    private String proofUrl;
 }
