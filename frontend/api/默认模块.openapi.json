@@ -1,0 +1,2291 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "默认模块",
+    "description": "",
+    "version": "1.0.0"
+  },
+  "tags": [
+    {
+      "name": "AbsenceController"
+    },
+    {
+      "name": "考勤 "
+    },
+    {
+      "name": "考勤 / 签到相关接口"
+    },
+    {
+      "name": "LeaveController"
+    },
+    {
+      "name": "StatsController"
+    },
+    {
+      "name": "TimetableController"
+    }
+  ],
+  "paths": {
+    "/api/absences/{absenceId}/convert-to-leave": {
+      "post": {
+        "summary": "将缺勤记录转为新的请假单",
+        "deprecated": false,
+        "description": "POST /api/absences/{absenceId}/convert-to-leave",
+        "tags": [
+          "AbsenceController"
+        ],
+        "parameters": [
+          {
+            "name": "absenceId",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AbsenceConvertToLeaveRequest",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultLong"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": 0
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/absences/{absenceId}/confirm": {
+      "post": {
+        "summary": "确认缺勤",
+        "deprecated": false,
+        "description": "POST /api/absences/{absenceId}/confirm?staffId=1",
+        "tags": [
+          "AbsenceController"
+        ],
+        "parameters": [
+          {
+            "name": "absenceId",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "staffId",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": null
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/attendance/session/start": {
+      "post": {
+        "summary": "老师发起一次签到场次",
+        "deprecated": false,
+        "description": "POST /api/attendance/session/start",
+        "tags": [
+          "考勤 / 签到相关接口"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AttendanceSessionStartRequest",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultAttendanceSessionStartResponse"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": {
+                    "sessionId": 0,
+                    "token": "",
+                    "allowStartTime": "",
+                    "allowEndTime": "",
+                    "tokenExpireTime": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/attendance/session/{sessionId}/close": {
+      "post": {
+        "summary": "老师关闭本次签到场次，并生成缺勤记录",
+        "deprecated": false,
+        "description": "POST /api/attendance/session/{sessionId}/close?teacherId=1001",
+        "tags": [
+          "考勤 / 签到相关接口"
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "teacherId",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": null
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/attendance/checkin": {
+      "post": {
+        "summary": "学生扫码 / 输入口令签到",
+        "deprecated": false,
+        "description": "POST /api/attendance/checkin",
+        "tags": [
+          "考勤 / 签到相关接口"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentCheckinRequest",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": null
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/attendance/teacher/sessions": {
+      "get": {
+        "summary": "老师查看某段时间内自己的签到场次列表",
+        "deprecated": false,
+        "description": "GET /api/attendance/teacher/sessions?teacherId=1001&startDate=2024-10-01&endDate=2024-10-31",
+        "tags": [
+          "考勤 / 签到相关接口"
+        ],
+        "parameters": [
+          {
+            "name": "teacherId",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultListAttendanceSessionSummaryDTO"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": [
+                    {
+                      "sessionId": 0,
+                      "offeringId": 0,
+                      "courseName": "",
+                      "className": "",
+                      "courseDate": "",
+                      "sectionStart": 0,
+                      "sectionEnd": 0,
+                      "status": "",
+                      "allowStartTime": "",
+                      "allowEndTime": "",
+                      "shouldAttendCount": 0,
+                      "checkedInCount": 0,
+                      "leaveCount": 0
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/attendance/session/{sessionId}/detail": {
+      "get": {
+        "summary": "老师查看某一次签到场次详情",
+        "deprecated": false,
+        "description": "GET /api/attendance/session/{sessionId}/detail?teacherId=1001",
+        "tags": [
+          "考勤 / 签到相关接口"
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "teacherId",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultAttendanceSessionDetailDTO"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": {
+                    "sessionId": 0,
+                    "offeringId": 0,
+                    "courseName": "",
+                    "className": "",
+                    "courseDate": "",
+                    "sectionStart": 0,
+                    "sectionEnd": 0,
+                    "status": "",
+                    "allowStartTime": "",
+                    "allowEndTime": "",
+                    "shouldAttendCount": 0,
+                    "checkedInCount": 0,
+                    "leaveCount": 0,
+                    "absenceCount": 0,
+                    "students": [
+                      {
+                        "studentId": 0,
+                        "studentNo": "",
+                        "studentName": "",
+                        "status": "",
+                        "checkinTime": "",
+                        "leaveId": 0
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/leaves/apply": {
+      "post": {
+        "summary": "1. 学生发起请假",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "LeaveController"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LeaveApplyRequest",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultLeaveApplyResponse"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": {
+                    "leaveId": 0,
+                    "status": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/leaves/pending/counselor": {
+      "get": {
+        "summary": "2. 辅导员查看待审批列表",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "LeaveController"
+        ],
+        "parameters": [
+          {
+            "name": "counselorId",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultListCounselorPendingLeaveDTO"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": [
+                    {
+                      "leaveId": 0,
+                      "studentId": 0,
+                      "studentName": "",
+                      "className": "",
+                      "leaveType": "",
+                      "reason": "",
+                      "startTime": "",
+                      "endTime": "",
+                      "status": ""
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/leaves/{id}/counselor-approve": {
+      "post": {
+        "summary": "3. 辅导员审批（同意 / 拒绝）",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "LeaveController"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselorApproveRequest",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": null
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/leaves/pending/teacher": {
+      "get": {
+        "summary": "4. 任课教师查看自己的待确认节次",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "LeaveController"
+        ],
+        "parameters": [
+          {
+            "name": "teacherId",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultListTeacherPendingImpactDTO"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": [
+                    {
+                      "impactId": 0,
+                      "leaveId": 0,
+                      "studentId": 0,
+                      "studentName": "",
+                      "className": "",
+                      "courseName": "",
+                      "courseDate": "",
+                      "sectionStart": 0,
+                      "sectionEnd": 0,
+                      "leaveType": "",
+                      "reason": "",
+                      "leaveStatus": ""
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/leaves/impact/{impactId}/teacher-confirm": {
+      "post": {
+        "summary": "5. 任课教师确认某一节次请假",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "LeaveController"
+        ],
+        "parameters": [
+          {
+            "name": "impactId",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TeacherConfirmRequest",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultVoid"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": null
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/leaves/pending/teacher/by-course": {
+      "get": {
+        "summary": "任课教师端：按课程维度聚合的待确认节次列表",
+        "deprecated": false,
+        "description": "示例：GET /api/leaves/pending/teacher/by-course?teacherId=2",
+        "tags": [
+          "LeaveController"
+        ],
+        "parameters": [
+          {
+            "name": "teacherId",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultListTeacherCoursePendingDTO"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": [
+                    {
+                      "offeringId": 0,
+                      "courseName": "",
+                      "className": "",
+                      "weekDay": 0,
+                      "sectionStart": 0,
+                      "sectionEnd": 0,
+                      "classroom": "",
+                      "pendingCount": 0
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/leaves/my": {
+      "get": {
+        "summary": "6. 学生查看自己的请假列表",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "LeaveController"
+        ],
+        "parameters": [
+          {
+            "name": "studentId",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultListLeaveRequest"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": [
+                    {
+                      "leaveId": 0,
+                      "studentId": 0,
+                      "termId": 0,
+                      "leaveType": "",
+                      "applyChannel": "",
+                      "reason": "",
+                      "proofUrl": "",
+                      "startTime": "",
+                      "endTime": "",
+                      "status": "",
+                      "rejectedAt": "",
+                      "cancelledAt": "",
+                      "createdAt": "",
+                      "updatedAt": ""
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/leaves/{id}/detail": {
+      "get": {
+        "summary": "7. 请假详情 + 时间线",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "LeaveController"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultLeaveDetailDTO"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": {
+                    "leaveId": 0,
+                    "studentId": 0,
+                    "studentName": "",
+                    "className": "",
+                    "leaveType": "",
+                    "applyChannel": "",
+                    "reason": "",
+                    "proofUrl": "",
+                    "startTime": "",
+                    "endTime": "",
+                    "status": "",
+                    "impacts": [
+                      {
+                        "impactId": 0,
+                        "offeringId": 0,
+                        "courseDate": "",
+                        "sectionStart": 0,
+                        "sectionEnd": 0,
+                        "courseName": "",
+                        "teacherName": "",
+                        "confirmStatus": "",
+                        "confirmTime": "",
+                        "remark": ""
+                      }
+                    ],
+                    "approvals": [
+                      {
+                        "approvalId": 0,
+                        "approverId": 0,
+                        "approverName": "",
+                        "approverRole": "",
+                        "action": "",
+                        "comment": "",
+                        "createdAt": ""
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/leaves/counselor-approve/batch": {
+      "post": {
+        "summary": "8.辅导员批量审批",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "LeaveController"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CounselorBatchApproveRequest",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultInteger"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": 0
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/leaves/public/batch": {
+      "post": {
+        "summary": "9.辅导员批量发起公假",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "LeaveController"
+        ],
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublicLeaveBatchRequest",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultListLong"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": [
+                    0
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/leaves/{id}/resubmit": {
+      "put": {
+        "summary": "10.学生重新提交被退回的请假单",
+        "deprecated": false,
+        "description": "URL 示例：PUT /api/leaves/1/resubmit",
+        "tags": [
+          "LeaveController"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LeaveApplyRequest",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultLeaveApplyResponse"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": {
+                    "leaveId": 0,
+                    "status": ""
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/stats/class-leave": {
+      "get": {
+        "summary": "班级请假统计",
+        "deprecated": false,
+        "description": "示例：\n  GET /api/stats/class-leave?classId=1&startDate=2024-10-01&endDate=2024-10-31",
+        "tags": [
+          "StatsController"
+        ],
+        "parameters": [
+          {
+            "name": "classId",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultClassLeaveStatsDTO"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": {
+                    "classId": 0,
+                    "className": "",
+                    "totalLeaves": 0,
+                    "sickCount": 0,
+                    "affairCount": 0,
+                    "publicCount": 0,
+                    "pendingCount": 0,
+                    "approvedCount": 0,
+                    "rejectedCount": 0
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/timetable/student/day": {
+      "get": {
+        "summary": "学生某一天课表",
+        "deprecated": false,
+        "description": "示例：GET /api/timetable/student/day?studentId=1&date=2024-10-10",
+        "tags": [
+          "TimetableController"
+        ],
+        "parameters": [
+          {
+            "name": "studentId",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResultListStudentDayCourseDTO"
+                },
+                "example": {
+                  "code": 0,
+                  "message": "",
+                  "data": [
+                    {
+                      "offeringId": 0,
+                      "courseId": 0,
+                      "courseName": "",
+                      "weekDay": 0,
+                      "sectionStart": 0,
+                      "sectionEnd": 0,
+                      "classroom": ""
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ResultLong": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": ""
+          },
+          "message": {
+            "type": "string",
+            "description": ""
+          },
+          "data": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          }
+        }
+      },
+      "AttendanceSessionStartResponse": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "token": {
+            "type": "string",
+            "description": "本次签到的token，前端可以编码到二维码中"
+          },
+          "allowStartTime": {
+            "type": "string",
+            "description": ""
+          },
+          "allowEndTime": {
+            "type": "string",
+            "description": ""
+          },
+          "tokenExpireTime": {
+            "type": "string",
+            "description": ""
+          }
+        }
+      },
+      "LeaveApplyResponse": {
+        "type": "object",
+        "properties": {
+          "leaveId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "status": {
+            "type": "string",
+            "description": ""
+          }
+        }
+      },
+      "ClassLeaveStatsDTO": {
+        "type": "object",
+        "properties": {
+          "classId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "className": {
+            "type": "string",
+            "description": ""
+          },
+          "totalLeaves": {
+            "type": "integer",
+            "description": "总请假单数",
+            "format": "int64"
+          },
+          "sickCount": {
+            "type": "integer",
+            "description": "各类型请假数",
+            "format": "int64"
+          },
+          "affairCount": {
+            "type": "integer",
+            "description": "事假",
+            "format": "int64"
+          },
+          "publicCount": {
+            "type": "integer",
+            "description": "公假",
+            "format": "int64"
+          },
+          "pendingCount": {
+            "type": "integer",
+            "description": "状态统计",
+            "format": "int64"
+          },
+          "approvedCount": {
+            "type": "integer",
+            "description": "审批通过",
+            "format": "int64"
+          },
+          "rejectedCount": {
+            "type": "integer",
+            "description": "被驳回或退回",
+            "format": "int64"
+          }
+        }
+      },
+      "StudentDayCourseDTO": {
+        "type": "object",
+        "properties": {
+          "offeringId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "courseId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "courseName": {
+            "type": "string",
+            "description": ""
+          },
+          "weekDay": {
+            "type": "integer",
+            "description": "1-7"
+          },
+          "sectionStart": {
+            "type": "integer",
+            "description": ""
+          },
+          "sectionEnd": {
+            "type": "integer",
+            "description": ""
+          },
+          "classroom": {
+            "type": "string",
+            "description": ""
+          }
+        }
+      },
+      "AbsenceConvertToLeaveRequest": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "integer",
+            "description": "谁在发起（一般就是这条缺勤对应的 student_id）",
+            "format": "int64"
+          },
+          "termId": {
+            "type": "integer",
+            "description": "当前学期ID",
+            "format": "int64"
+          },
+          "leaveType": {
+            "type": "string",
+            "description": "SICK / AFFAIR / PUBLIC"
+          },
+          "reason": {
+            "type": "string",
+            "description": "补假理由"
+          },
+          "proofUrl": {
+            "type": "string",
+            "description": "补充材料，可选"
+          },
+          "startTime": {
+            "type": "string",
+            "description": "事后补假希望覆盖的时间段，可以直接沿用原请假 apply 的逻辑\n（如果你不关心具体时间，也可以前端传 courseDate 当天的 08:00~18:00）"
+          },
+          "endTime": {
+            "type": "string",
+            "description": ""
+          }
+        }
+      },
+      "ResultAttendanceSessionStartResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": ""
+          },
+          "message": {
+            "type": "string",
+            "description": ""
+          },
+          "data": {
+            "$ref": "#/components/schemas/AttendanceSessionStartResponse",
+            "description": ""
+          }
+        }
+      },
+      "ResultLeaveApplyResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": ""
+          },
+          "message": {
+            "type": "string",
+            "description": ""
+          },
+          "data": {
+            "$ref": "#/components/schemas/LeaveApplyResponse",
+            "description": ""
+          }
+        }
+      },
+      "ResultClassLeaveStatsDTO": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": ""
+          },
+          "message": {
+            "type": "string",
+            "description": ""
+          },
+          "data": {
+            "$ref": "#/components/schemas/ClassLeaveStatsDTO",
+            "description": ""
+          }
+        }
+      },
+      "ResultListStudentDayCourseDTO": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": ""
+          },
+          "message": {
+            "type": "string",
+            "description": ""
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentDayCourseDTO",
+              "description": "com.example.leavesystem.dto.StudentDayCourseDTO"
+            },
+            "description": ""
+          }
+        }
+      },
+      "ResultVoid": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": ""
+          },
+          "message": {
+            "type": "string",
+            "description": ""
+          },
+          "data": {
+            "description": "",
+            "type": "null"
+          }
+        }
+      },
+      "AttendanceSessionStartRequest": {
+        "type": "object",
+        "properties": {
+          "teacherId": {
+            "type": "integer",
+            "description": "任课老师ID（Staff.staffId）",
+            "format": "int64"
+          },
+          "offeringId": {
+            "type": "integer",
+            "description": "开课ID（Offering.offeringId）",
+            "format": "int64"
+          },
+          "courseDate": {
+            "type": "string",
+            "description": "上课日期"
+          },
+          "sectionStart": {
+            "type": "integer",
+            "description": "节次范围"
+          },
+          "sectionEnd": {
+            "type": "integer",
+            "description": ""
+          },
+          "durationMinutes": {
+            "type": "integer",
+            "description": "签到允许时长（分钟），例如 10 分钟"
+          }
+        }
+      },
+      "ImpactItem": {
+        "type": "object",
+        "properties": {
+          "offeringId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "courseDate": {
+            "type": "string",
+            "description": ""
+          },
+          "sectionStart": {
+            "type": "integer",
+            "description": ""
+          },
+          "sectionEnd": {
+            "type": "integer",
+            "description": ""
+          }
+        }
+      },
+      "LeaveApplyRequest": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "termId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "leaveType": {
+            "type": "string",
+            "description": "SICK / PERSONAL / PUBLIC"
+          },
+          "applyChannel": {
+            "type": "string",
+            "description": "BY_COURSE / BY_TIME"
+          },
+          "reason": {
+            "type": "string",
+            "description": ""
+          },
+          "proofUrl": {
+            "type": "string",
+            "description": ""
+          },
+          "startTime": {
+            "type": "string",
+            "description": ""
+          },
+          "endTime": {
+            "type": "string",
+            "description": ""
+          },
+          "impacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImpactItem",
+              "description": "com.example.leavesystem.dto.LeaveApplyRequest.ImpactItem"
+            },
+            "description": "受影响的课程节次列表（按课表维度请假时需要）"
+          }
+        }
+      },
+      "StudentCheckinRequest": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "integer",
+            "description": "学生ID（Student.studentId）",
+            "format": "int64"
+          },
+          "token": {
+            "type": "string",
+            "description": "签到token（来自二维码）"
+          }
+        }
+      },
+      "CounselorPendingLeaveDTO": {
+        "type": "object",
+        "properties": {
+          "leaveId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "studentId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "studentName": {
+            "type": "string",
+            "description": ""
+          },
+          "className": {
+            "type": "string",
+            "description": ""
+          },
+          "leaveType": {
+            "type": "string",
+            "description": ""
+          },
+          "reason": {
+            "type": "string",
+            "description": ""
+          },
+          "startTime": {
+            "type": "string",
+            "description": ""
+          },
+          "endTime": {
+            "type": "string",
+            "description": ""
+          },
+          "status": {
+            "type": "string",
+            "description": ""
+          }
+        }
+      },
+      "AttendanceSessionSummaryDTO": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "offeringId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "courseName": {
+            "type": "string",
+            "description": ""
+          },
+          "className": {
+            "type": "string",
+            "description": ""
+          },
+          "courseDate": {
+            "type": "string",
+            "description": ""
+          },
+          "sectionStart": {
+            "type": "integer",
+            "description": ""
+          },
+          "sectionEnd": {
+            "type": "integer",
+            "description": ""
+          },
+          "status": {
+            "type": "string",
+            "description": "OPEN / CLOSED"
+          },
+          "allowStartTime": {
+            "type": "string",
+            "description": ""
+          },
+          "allowEndTime": {
+            "type": "string",
+            "description": ""
+          },
+          "shouldAttendCount": {
+            "type": "integer",
+            "description": ""
+          },
+          "checkedInCount": {
+            "type": "integer",
+            "description": ""
+          },
+          "leaveCount": {
+            "type": "integer",
+            "description": ""
+          }
+        }
+      },
+      "ResultListCounselorPendingLeaveDTO": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": ""
+          },
+          "message": {
+            "type": "string",
+            "description": ""
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CounselorPendingLeaveDTO",
+              "description": "com.example.leavesystem.dto.CounselorPendingLeaveDTO"
+            },
+            "description": ""
+          }
+        }
+      },
+      "ResultListAttendanceSessionSummaryDTO": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": ""
+          },
+          "message": {
+            "type": "string",
+            "description": ""
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttendanceSessionSummaryDTO",
+              "description": "老师查看某段时间内的签到场次列表"
+            },
+            "description": ""
+          }
+        }
+      },
+      "StudentStatusItem": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "studentNo": {
+            "type": "string",
+            "description": ""
+          },
+          "studentName": {
+            "type": "string",
+            "description": ""
+          },
+          "status": {
+            "type": "string",
+            "description": "PRESENT / ABSENT / LEAVE"
+          },
+          "checkinTime": {
+            "type": "string",
+            "description": ""
+          },
+          "leaveId": {
+            "type": "integer",
+            "description": "如果是请假，关联的 leaveId（可选，看你是否需要）",
+            "format": "int64"
+          }
+        }
+      },
+      "CounselorApproveRequest": {
+        "type": "object",
+        "properties": {
+          "counselorId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "action": {
+            "type": "string",
+            "description": "审批动作：AGREE / REJECT / RETURN"
+          },
+          "comment": {
+            "type": "string",
+            "description": ""
+          }
+        }
+      },
+      "AttendanceSessionDetailDTO": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "offeringId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "courseName": {
+            "type": "string",
+            "description": ""
+          },
+          "className": {
+            "type": "string",
+            "description": ""
+          },
+          "courseDate": {
+            "type": "string",
+            "description": ""
+          },
+          "sectionStart": {
+            "type": "integer",
+            "description": ""
+          },
+          "sectionEnd": {
+            "type": "integer",
+            "description": ""
+          },
+          "status": {
+            "type": "string",
+            "description": "OPEN / CLOSED"
+          },
+          "allowStartTime": {
+            "type": "string",
+            "description": ""
+          },
+          "allowEndTime": {
+            "type": "string",
+            "description": ""
+          },
+          "shouldAttendCount": {
+            "type": "integer",
+            "description": ""
+          },
+          "checkedInCount": {
+            "type": "integer",
+            "description": ""
+          },
+          "leaveCount": {
+            "type": "integer",
+            "description": ""
+          },
+          "absenceCount": {
+            "type": "integer",
+            "description": ""
+          },
+          "students": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentStatusItem",
+              "description": "com.example.leavesystem.dto.AttendanceSessionDetailDTO.StudentStatusItem"
+            },
+            "description": ""
+          }
+        }
+      },
+      "TeacherPendingImpactDTO": {
+        "type": "object",
+        "properties": {
+          "impactId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "leaveId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "studentId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "studentName": {
+            "type": "string",
+            "description": ""
+          },
+          "className": {
+            "type": "string",
+            "description": ""
+          },
+          "courseName": {
+            "type": "string",
+            "description": ""
+          },
+          "courseDate": {
+            "type": "string",
+            "description": ""
+          },
+          "sectionStart": {
+            "type": "integer",
+            "description": ""
+          },
+          "sectionEnd": {
+            "type": "integer",
+            "description": ""
+          },
+          "leaveType": {
+            "type": "string",
+            "description": ""
+          },
+          "reason": {
+            "type": "string",
+            "description": ""
+          },
+          "leaveStatus": {
+            "type": "string",
+            "description": ""
+          }
+        }
+      },
+      "ResultAttendanceSessionDetailDTO": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": ""
+          },
+          "message": {
+            "type": "string",
+            "description": ""
+          },
+          "data": {
+            "$ref": "#/components/schemas/AttendanceSessionDetailDTO",
+            "description": ""
+          }
+        }
+      },
+      "ResultListTeacherPendingImpactDTO": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": ""
+          },
+          "message": {
+            "type": "string",
+            "description": ""
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TeacherPendingImpactDTO",
+              "description": "com.example.leavesystem.dto.TeacherPendingImpactDTO"
+            },
+            "description": ""
+          }
+        }
+      },
+      "TeacherConfirmRequest": {
+        "type": "object",
+        "properties": {
+          "teacherId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "remark": {
+            "type": "string",
+            "description": ""
+          }
+        }
+      },
+      "TeacherCoursePendingDTO": {
+        "type": "object",
+        "properties": {
+          "offeringId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "courseName": {
+            "type": "string",
+            "description": ""
+          },
+          "className": {
+            "type": "string",
+            "description": ""
+          },
+          "weekDay": {
+            "type": "integer",
+            "description": "1-7"
+          },
+          "sectionStart": {
+            "type": "integer",
+            "description": ""
+          },
+          "sectionEnd": {
+            "type": "integer",
+            "description": ""
+          },
+          "classroom": {
+            "type": "string",
+            "description": ""
+          },
+          "pendingCount": {
+            "type": "integer",
+            "description": "该课程下待确认的节次/记录数",
+            "format": "int64"
+          }
+        }
+      },
+      "ResultListTeacherCoursePendingDTO": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": ""
+          },
+          "message": {
+            "type": "string",
+            "description": ""
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TeacherCoursePendingDTO",
+              "description": "任课教师端：按课程维度聚合的待确认请假信息"
+            },
+            "description": ""
+          }
+        }
+      },
+      "LeaveRequest": {
+        "type": "object",
+        "properties": {
+          "leaveId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "studentId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "termId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "leaveType": {
+            "type": "string",
+            "description": "SICK / PERSONAL / PUBLIC"
+          },
+          "applyChannel": {
+            "type": "string",
+            "description": "BY_COURSE / BY_TIME"
+          },
+          "reason": {
+            "type": "string",
+            "description": ""
+          },
+          "proofUrl": {
+            "type": "string",
+            "description": ""
+          },
+          "startTime": {
+            "type": "string",
+            "description": ""
+          },
+          "endTime": {
+            "type": "string",
+            "description": ""
+          },
+          "status": {
+            "type": "string",
+            "description": "DRAFT / PENDING_COUNSELOR / PENDING_TEACHER / APPROVED / REJECTED ..."
+          },
+          "rejectedAt": {
+            "type": "string",
+            "description": ""
+          },
+          "cancelledAt": {
+            "type": "string",
+            "description": ""
+          },
+          "createdAt": {
+            "type": "string",
+            "description": ""
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": ""
+          }
+        }
+      },
+      "ResultListLeaveRequest": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": ""
+          },
+          "message": {
+            "type": "string",
+            "description": ""
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LeaveRequest",
+              "description": "com.example.leavesystem.entity.LeaveRequest"
+            },
+            "description": ""
+          }
+        }
+      },
+      "ImpactItem1": {
+        "type": "object",
+        "properties": {
+          "impactId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "offeringId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "courseDate": {
+            "type": "string",
+            "description": ""
+          },
+          "sectionStart": {
+            "type": "integer",
+            "description": ""
+          },
+          "sectionEnd": {
+            "type": "integer",
+            "description": ""
+          },
+          "courseName": {
+            "type": "string",
+            "description": ""
+          },
+          "teacherName": {
+            "type": "string",
+            "description": ""
+          },
+          "confirmStatus": {
+            "type": "string",
+            "description": ""
+          },
+          "confirmTime": {
+            "type": "string",
+            "description": ""
+          },
+          "remark": {
+            "type": "string",
+            "description": ""
+          }
+        }
+      },
+      "ApprovalItem": {
+        "type": "object",
+        "properties": {
+          "approvalId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "approverId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "approverName": {
+            "type": "string",
+            "description": ""
+          },
+          "approverRole": {
+            "type": "string",
+            "description": "COUNSELOR / TEACHER / ADMIN ..."
+          },
+          "action": {
+            "type": "string",
+            "description": "AGREE / REJECT / RETURN 等"
+          },
+          "comment": {
+            "type": "string",
+            "description": ""
+          },
+          "createdAt": {
+            "type": "string",
+            "description": ""
+          }
+        }
+      },
+      "LeaveDetailDTO": {
+        "type": "object",
+        "properties": {
+          "leaveId": {
+            "type": "integer",
+            "description": "===== 主表基础信息 =====",
+            "format": "int64"
+          },
+          "studentId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "studentName": {
+            "type": "string",
+            "description": ""
+          },
+          "className": {
+            "type": "string",
+            "description": ""
+          },
+          "leaveType": {
+            "type": "string",
+            "description": ""
+          },
+          "applyChannel": {
+            "type": "string",
+            "description": ""
+          },
+          "reason": {
+            "type": "string",
+            "description": ""
+          },
+          "proofUrl": {
+            "type": "string",
+            "description": ""
+          },
+          "startTime": {
+            "type": "string",
+            "description": ""
+          },
+          "endTime": {
+            "type": "string",
+            "description": ""
+          },
+          "status": {
+            "type": "string",
+            "description": ""
+          },
+          "impacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImpactItem1",
+              "description": "com.example.leavesystem.dto.LeaveDetailDTO.ImpactItem"
+            },
+            "description": "===== 影响节次列表 ====="
+          },
+          "approvals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApprovalItem",
+              "description": "com.example.leavesystem.dto.LeaveDetailDTO.ApprovalItem"
+            },
+            "description": "===== 审批记录时间线 ====="
+          }
+        }
+      },
+      "ResultLeaveDetailDTO": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": ""
+          },
+          "message": {
+            "type": "string",
+            "description": ""
+          },
+          "data": {
+            "$ref": "#/components/schemas/LeaveDetailDTO",
+            "description": ""
+          }
+        }
+      },
+      "ResultInteger": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": ""
+          },
+          "message": {
+            "type": "string",
+            "description": ""
+          },
+          "data": {
+            "type": "integer",
+            "description": ""
+          }
+        }
+      },
+      "CounselorBatchApproveRequest": {
+        "type": "object",
+        "properties": {
+          "counselorId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "action": {
+            "type": "string",
+            "description": "AGREE / REJECT / RETURN"
+          },
+          "comment": {
+            "type": "string",
+            "description": ""
+          },
+          "leaveIds": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": ""
+          }
+        }
+      },
+      "ResultListLong": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": ""
+          },
+          "message": {
+            "type": "string",
+            "description": ""
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": ""
+          }
+        }
+      },
+      "ImpactItem2": {
+        "type": "object",
+        "properties": {
+          "offeringId": {
+            "type": "integer",
+            "description": "",
+            "format": "int64"
+          },
+          "courseDate": {
+            "type": "string",
+            "description": ""
+          },
+          "sectionStart": {
+            "type": "integer",
+            "description": ""
+          },
+          "sectionEnd": {
+            "type": "integer",
+            "description": ""
+          }
+        }
+      },
+      "PublicLeaveBatchRequest": {
+        "type": "object",
+        "properties": {
+          "counselorId": {
+            "type": "integer",
+            "description": "发起人（辅导员）",
+            "format": "int64"
+          },
+          "studentIds": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "公假学生列表"
+          },
+          "termId": {
+            "type": "integer",
+            "description": "学期",
+            "format": "int64"
+          },
+          "reason": {
+            "type": "string",
+            "description": "公假基本信息"
+          },
+          "startTime": {
+            "type": "string",
+            "description": ""
+          },
+          "endTime": {
+            "type": "string",
+            "description": ""
+          },
+          "impacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImpactItem2",
+              "description": "com.example.leavesystem.dto.PublicLeaveBatchRequest.ImpactItem"
+            },
+            "description": "公假影响的课程节次（对所有学生相同）"
+          }
+        }
+      }
+    },
+    "responses": {},
+    "securitySchemes": {}
+  },
+  "servers": [
+    {
+      "url": "http://dev-cn.your-api-server.com",
+      "description": "开发环境"
+    }
+  ],
+  "security": []
+}

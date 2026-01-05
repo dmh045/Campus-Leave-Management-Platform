@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.leavesystem.mapper.MessageMapper">
+
+    <insert id="insertMessage" parameterType="com.example.leavesystem.entity.Message">
+        INSERT INTO message
+        (receiver_type, receiver_id, sender_type, sender_id, message_type, content, related_id, is_read, created_at, updated_at)
+        VALUES
+            (#{receiverType}, #{receiverId}, #{senderType}, #{senderId}, #{messageType}, #{content}, #{relatedId}, #{isRead}, NOW(), NOW())
+    </insert>
+
+    <select id="selectMessagesByReceiver" resultType="com.example.leavesystem.entity.Message">
+        SELECT * FROM message
+        WHERE receiver_type = #{receiverType} AND receiver_id = #{receiverId}
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="selectUnreadCount" resultType="int">
+        SELECT COUNT(*) FROM message
+        WHERE receiver_type = #{receiverType} AND receiver_id = #{receiverId} AND is_read = 0
+    </select>
+
+    <update id="updateMessageAsRead">
+        UPDATE message
+        SET is_read = 1, updated_at = NOW()
+        WHERE message_id = #{messageId}
+    </update>
+
+    <update id="updateMessagesAsRead">
+        UPDATE message
+        SET is_read = 1, updated_at = NOW()
+        WHERE receiver_type = #{receiverType} AND receiver_id = #{receiverId}
+    </update>
+
+</mapper>
