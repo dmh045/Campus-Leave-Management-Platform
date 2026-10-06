@@ -1,224 +1,218 @@
-# Campus Leave Management Platform
+<div align="center">
 
-大学生请假信息管理平台，面向学生、辅导员、任课教师和管理员四类角色，覆盖请假申请、审批流转、课程影响确认、课堂签到、考勤记录、统计分析和基础教务数据维护等场景。
+# 🎓 校假通
 
-## 项目特点
+### 从课表发起请假，让审批结果回到课堂
 
-- 多角色登录与权限控制：学生、辅导员、任课教师、管理员按角色进入不同工作台。
-- 请假闭环管理：学生提交请假申请，辅导员审批，涉及课程的任课教师进行确认。
-- 按课程关联请假影响：请假时间可匹配课表，自动生成受影响课程记录。
-- 辅导员批量处理：支持待办审批、批量审批、发起公假、班级请假统计。
-- 任课教师考勤：支持课堂签到会话、签到详情查看、缺勤确认和考勤导出。
-- 管理员基础数据维护：支持学期、班级、课程、开课信息和课表数据管理。
-- 前后端分离：前端基于 Vue 3 + Vite，后端基于 Spring Boot + MyBatis + MySQL。
+面向学生、辅导员、任课教师与管理员的校园请假管理平台。把请假、课程影响、签到和考勤放在同一条业务线上。
 
-## 技术栈
+<p>
+  <img alt="Java 17" src="https://img.shields.io/badge/Java-17-ED8B00?logo=openjdk&logoColor=white">
+  <img alt="Spring Boot 4.0.0" src="https://img.shields.io/badge/Spring%20Boot-4.0.0-6DB33F?logo=springboot&logoColor=white">
+  <img alt="Vue 3" src="https://img.shields.io/badge/Vue-3-42B883?logo=vuedotjs&logoColor=white">
+  <img alt="MySQL 8" src="https://img.shields.io/badge/MySQL-8-4479A1?logo=mysql&logoColor=white">
+</p>
 
-### 后端
+[看交互演示](#真实交互演示) · [了解流程](#一次请假如何流转) · [如何使用](#如何使用) · [快速开始](#快速开始) · [技术架构](#技术架构)
 
-- Java 17
-- Spring Boot 4.0.0
-- Spring Web MVC
-- MyBatis Spring Boot Starter 4.0.0
-- MySQL Connector/J
-- Lombok
-- Apache POI
-- JUnit / MockMvc
+</div>
 
-### 前端
+## 真实交互演示
 
-- Vue 3
-- TypeScript
-- Vite 7
-- Vue Router
-- Pinia
-- Element Plus
-- Tailwind CSS
-- Axios
-- ECharts
-- Day.js
-- xlsx
-- qrcode
+<p align="center">
+  <img src="./docs/images/campus-demo.gif" alt="校假通真实 Vue 前端交互：学生登录、从课表选择课程、提交请假、查看记录和详情" width="900">
+  <br>
+  <sub>学生登录 → 课表选课 → 填写事假 → 提交 → 查看请假记录与详情</sub>
+</p>
 
-## 目录结构
+GIF 使用仓库里的 **Vue 前端实际运行**并按真实点击流程截帧。录制环境没有 Java 和 MySQL，登录、课表与请假接口使用本地模拟响应，账号和课程均为演示数据；这段动图展示的是前端交互，**不代表后端联调或数据库写入结果**。下方多角色截图另取自仓库项目报告。
+
+## 一次请假如何流转
+
+校假通的起点是学生的课表。学生可以针对某节课程发起请假，也可以按时间段申请；系统把申请与受影响课程关联，让审批人和任课教师知道这张请假单影响了哪堂课。
+
+```mermaid
+flowchart LR
+    A[学生从课表或时间段发起申请] --> B[辅导员审批]
+    B -->|退回补充| A
+    B -->|通过| C[任课教师确认课程影响]
+    C --> D[学生查看请假进度]
+    E[教师开启课堂签到] --> F[学生签到 / 缺勤处理]
+    F --> G[考勤记录与导出]
+    D -. 关联课程 .-> G
+```
+
+| 使用者 | 打开系统后关心什么 | 对应操作 |
+| :--- | :--- | :--- |
+| **学生** | 这周有什么课？请假批到哪一步？ | 查看课表与请假状态；提交病假、事假或公假，上传凭证；查看、补充或重提交申请；参与课堂签到 |
+| **辅导员** | 哪些申请待处理？班级请假情况如何？ | 筛选、批量审批或退回请假单；按班级发起公假；查看班级统计 |
+| **任课教师** | 哪些学生请假影响我的课？谁到了课堂？ | 确认课程影响；开启签到、处理缺勤；按课程、班级和日期导出考勤 |
+| **管理员** | 本学期的基础教务数据是否齐全？ | 维护学期设置与课表导入；通过管理接口维护班级、课程、开课和选课数据 |
+
+## 如何使用
+
+**学生体验路径**：用初始化数据中的学生账号登录 → 打开「我的课表」选择课程 → 点击「发起请假」填写类型、原因和必要凭证 → 在「请假记录」查看审批进度与详情。若申请被退回，可按提示补充后重新提交。
+
+**审批与教学路径**：辅导员从待办列表处理申请；任课教师在请假确认页确认受影响课程，并在上课时创建签到会话。需要复盘时，到考勤页按课程、班级或日期筛选与导出。
+
+本地启动步骤和演示账号见[快速开始](#-快速开始)。初始化脚本提供学生账号；教职工演示账号需要先在本地数据库设置密码，管理员账号需要自行配置。
+
+## 更多真实界面
+
+以下静态截图提取自仓库的 [《校假通项目报告》](./校假通项目报告.pdf) 第 12–18 页，展示报告中的演示界面与示例数据；它们与上方本次运行录制的 GIF 来源不同。
+
+| 学生 · 请假申请 | 辅导员 · 班级统计 |
+| :---: | :---: |
+| <a href="./docs/images/student-leave-apply.png"><img src="./docs/images/student-leave-apply.png" alt="学生发起请假界面" width="480"></a> | <a href="./docs/images/counselor-statistics.png"><img src="./docs/images/counselor-statistics.png" alt="辅导员班级统计界面" width="480"></a> |
+| 填写请假信息与证明材料 | 查看请假类型分布与近期趋势 |
+
+| 学生 · 课堂签到 | 教师 · 导出考勤 |
+| :---: | :---: |
+| <a href="./docs/images/student-checkin.png"><img src="./docs/images/student-checkin.png" alt="学生课堂签到界面" width="480"></a> | <a href="./docs/images/teacher-export.png"><img src="./docs/images/teacher-export.png" alt="教师导出考勤界面" width="480"></a> |
+| 查看签到状态与记录 | 筛选课程、班级和日期并导出 |
+
+<details>
+<summary><strong>展开更多页面：课表、公假、考勤登记与系统设置</strong></summary>
+
+<p align="center"><a href="./docs/images/student-timetable.png"><img src="./docs/images/student-timetable.png" alt="学生课表与请假状态" width="800"></a><br><sub>学生 · 课表与请假状态</sub></p>
+
+| 辅导员 · 发起公假 | 教师 · 考勤登记 | 管理员 · 系统设置 |
+| :---: | :---: | :---: |
+| <a href="./docs/images/counselor-public-leave.png"><img src="./docs/images/counselor-public-leave.png" alt="辅导员发起公假" width="310"></a> | <a href="./docs/images/teacher-attendance.png"><img src="./docs/images/teacher-attendance.png" alt="教师考勤登记" width="310"></a> | <a href="./docs/images/admin-settings.png"><img src="./docs/images/admin-settings.png" alt="管理员系统设置" width="310"></a> |
+
+</details>
+
+> [!NOTE]
+> 仓库的需求文档与项目报告包含规划内容；功能、接口和运行说明以当前代码为准。
+
+## 技术架构
+
+| 层次 | 技术 |
+| :--- | :--- |
+| 前端 | Vue 3、TypeScript、Vite 7、Vue Router、Pinia、Element Plus、Tailwind CSS、ECharts |
+| 后端 | Java 17、Spring Boot 4.0.0、Spring Web MVC、MyBatis、Apache POI |
+| 数据 | MySQL 8；仓库提供数据库初始化 SQL |
+| 测试 | JUnit、MockMvc；`backend/TestCase/` 提供 HTTP 调试用例 |
+
+```text
+浏览器 / Vue 3 + Vite
+          │  /api、/admin
+          ▼
+Spring Boot Controller → Service → MyBatis Mapper → MySQL
+```
+
+项目主要目录：
 
 ```text
 .
-├── backend/                                # Spring Boot 后端
-│   ├── src/main/java/com/example/leavesystem
-│   │   ├── common/                         # 统一响应、异常处理
-│   │   ├── controller/                     # REST 接口
-│   │   ├── dto/                            # 请求/响应数据对象
-│   │   ├── entity/                         # 数据库实体
-│   │   ├── mapper/                         # MyBatis Mapper
-│   │   ├── security/                       # Token 认证与角色拦截
-│   │   └── service/                        # 业务服务
-│   ├── src/main/resources
-│   │   ├── application.properties          # 后端端口与数据库配置
-│   │   └── leave_system_database.sql       # 数据库初始化脚本
-│   └── src/test/java/...                   # 接口与业务测试
-├── frontend/                               # Vue 前端
-│   ├── src/api/                            # 前端接口封装
-│   ├── src/components/                     # 通用组件
-│   ├── src/config/                         # 角色菜单配置
-│   ├── src/router/                         # 路由配置
-│   ├── src/store/                          # Pinia 状态
-│   ├── src/views/                          # 页面视图
-│   └── vite.config.ts                      # Vite 配置与代理
-├── backend/TestCase/                       # HTTP 调试用例
-├── 测试案例.xlsx
+├── frontend/
+│   ├── src/views/              # 四类角色的页面
+│   ├── src/api/                # 前端请求封装
+│   ├── src/router/             # 页面路由与登录守卫
+│   └── vite.config.ts          # 开发代理
+├── backend/
+│   ├── src/main/java/com/example/leavesystem/
+│   │   ├── controller/         # REST 接口
+│   │   ├── service/            # 业务逻辑
+│   │   ├── mapper/             # 数据访问
+│   │   └── security/           # Token 与角色校验
+│   ├── src/main/resources/
+│   │   ├── application.properties
+│   │   └── leave_system_database.sql
+│   └── src/test/               # 后端测试
+├── docs/images/               # 运行 GIF 与项目报告截图
 ├── 大学生请假信息管理平台需求文档.pdf
 └── 校假通项目报告.pdf
 ```
 
 ## 快速开始
 
-### 1. 环境准备
+### 1. 准备环境
 
-- JDK 17+
-- MySQL 8+
-- Node.js 20+，建议使用 Node.js 20.19 或更高版本
-- npm
+- **JDK 17+**
+- **Maven**（确保 `mvn` 命令可用）
+- **MySQL 8.0+**（初始化脚本使用 MySQL 8 的排序规则）
+- **Node.js 20.19+（20.x）或 22.12+** 与 npm
+
+```bash
+git clone https://github.com/dmh045/Campus-Leave-Management-Platform.git
+cd Campus-Leave-Management-Platform
+```
 
 ### 2. 初始化数据库
 
-创建数据库：
-
-```sql
-CREATE DATABASE leave_system DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-```
-
-导入初始化脚本：
+先创建一个新的本地数据库，再导入仓库提供的 SQL：
 
 ```bash
+mysql -u root -p -e "CREATE DATABASE leave_system CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;"
 mysql -u root -p leave_system < backend/src/main/resources/leave_system_database.sql
 ```
 
-修改后端数据库连接配置：
+> [!IMPORTANT]
+> 初始化脚本包含 `DROP TABLE IF EXISTS`。请使用新的开发数据库，不要导入到已有业务数据的数据库中。
+
+打开 [`backend/src/main/resources/application.properties`](./backend/src/main/resources/application.properties)，把数据库用户名、密码和连接地址改成你本机的值。仓库自带的是本地开发配置；不要把个人数据库密码提交到公开仓库。
 
 ```properties
-# backend/src/main/resources/application.properties
-server.port=8080
-
-spring.datasource.url=jdbc:mysql://localhost:3306/leave_system?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8&allowPublicKeyRetrieval=true
-spring.datasource.username=root
-spring.datasource.password=你的数据库密码
-spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
-
-mybatis.configuration.map-underscore-to-camel-case=true
+spring.datasource.username=YOUR_MYSQL_USER
+spring.datasource.password=YOUR_MYSQL_PASSWORD
 ```
-
-注意：当前仓库中的 `application.properties` 带有本地数据库密码，部署或提交公开仓库前建议改为环境变量或本机私有配置。
 
 ### 3. 启动后端
 
+在一个终端中运行：
+
 ```bash
 cd backend
-./mvnw spring-boot:run
+mvn spring-boot:run
 ```
 
-Windows PowerShell：
-
-```powershell
-cd backend
-.\mvnw.cmd spring-boot:run
-```
-
-默认服务地址：
-
-```text
-http://localhost:8080
-```
+Windows PowerShell 同样使用 `mvn spring-boot:run`。仓库未提交 Maven Wrapper 所需的 `.mvn/wrapper` 配置，因此应使用本机安装的 Maven。后端默认监听 [http://localhost:8080](http://localhost:8080)。
 
 ### 4. 启动前端
 
+在另一个终端中，从仓库根目录运行：
+
 ```bash
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
 
-前端开发服务默认地址通常为：
+打开 Vite 输出的本地地址，默认是 [http://localhost:5173](http://localhost:5173)。开发服务器已将 `/api` 和 `/admin` 代理至 `http://localhost:8080`，因此要同时启动前后端。
 
-```text
-http://localhost:5173
-```
+### 5. 使用演示账号
 
-`frontend/vite.config.ts` 已配置开发代理：
+初始化数据包含两个学生账号：
 
-- `/api` 转发到 `http://localhost:8080`
-- `/admin` 转发到 `http://localhost:8080`
+| 角色 | 登录类型 | 账号 | 初始密码 |
+| :--- | :--- | :--- | :--- |
+| 学生 | `STUDENT` | `20210001` | `123456` |
+| 学生 | `STUDENT` | `20210002` | `123456` |
 
-因此本地开发时前端可以直接请求 `/api/...` 和 `/admin/...`。
-
-## 测试账号
-
-初始化 SQL 中包含以下学生测试账号：
-
-| 角色 | 账号 | 密码 | 说明 |
-| --- | --- | --- | --- |
-| 学生 | `20210001` | `123456` | 小明 |
-| 学生 | `20210002` | `123456` | 小红 |
-
-初始化 SQL 中包含以下教职工数据，但 `staff.password` 默认为 `NULL`。如果需要登录辅导员或任课教师账号，请先设置密码：
+初始化脚本还包含辅导员工号 `T2024001` 和任课教师工号 `T2024002`，但两人的 `staff.password` 初始为 `NULL`。仅在本地演示数据库中设置测试密码后，选择 `STAFF` 类型登录：
 
 ```sql
-UPDATE staff SET password = '123456' WHERE staff_no IN ('T2024001', 'T2024002');
+UPDATE staff
+SET password = 'change-me-for-local-demo'
+WHERE staff_no IN ('T2024001', 'T2024002');
 ```
 
-| 角色 | 账号 | 建议测试密码 | 说明 |
-| --- | --- | --- | --- |
-| 辅导员 | `T2024001` | `123456` | 张辅导 |
-| 任课教师 | `T2024002` | `123456` | 李老师 |
+管理员账号 **没有** 随初始化数据创建；需要自行准备教职工账号并赋予 `ADMIN` 角色。以上账号和明文密码仅用于本地演示，不适合生产环境。
 
-如需管理员登录，需要在 `staff` 表中准备管理员账号，并在 `staff_role` 表中为该账号配置 `ADMIN` 角色。
+## 接口速览
 
-## 核心功能
+登录成功后，受保护的接口使用 `Authorization: Bearer <token>`。前端通过 Axios 请求拦截器自动携带令牌；服务端根据用户角色限制操作。
 
-### 学生端
-
-- 查看个人课表
-- 发起课程请假或时间段请假
-- 查看请假记录与详情
-- 被退回后重新提交申请
-- 参与课堂签到
-
-### 辅导员端
-
-- 查看待审批请假申请
-- 同意、拒绝或退回学生请假
-- 批量审批请假单
-- 发起公假并批量生成请假记录
-- 按班级查看请假统计
-- 查询所管理班级、学生和课程安排
-
-### 任课教师端
-
-- 查看待确认的课程请假影响
-- 确认学生请假对课程的影响
-- 发起课堂签到
-- 查看签到会话与签到详情
-- 关闭签到会话
-- 导出考勤数据
-- 处理缺勤转请假或缺勤确认
-
-### 管理员端
-
-- 学期管理
-- 班级管理
-- 课程管理
-- 开课信息管理
-- 课表数据维护
-- 学生选课关系维护
-
-## 主要接口
-
-### 认证
-
-| 方法 | 路径 | 说明 |
-| --- | --- | --- |
-| `POST` | `/api/auth/login` | 登录 |
-| `POST` | `/api/auth/logout` | 登出 |
+| 业务 | 代表性接口 |
+| :--- | :--- |
+| 认证 | `POST /api/auth/login`、`POST /api/auth/logout` |
+| 学生请假 | `POST /api/leaves/apply`、`GET /api/leaves/my`、`GET /api/leaves/{id}/detail`、`PUT /api/leaves/{id}/resubmit` |
+| 辅导员审批 | `GET /api/leaves/pending/counselor`、`POST /api/leaves/{id}/counselor-approve`、`POST /api/leaves/counselor-approve/batch`、`POST /api/leaves/public/batch` |
+| 教师确认 | `GET /api/leaves/pending/teacher`、`POST /api/leaves/impact/{impactId}/teacher-confirm` |
+| 课表与统计 | `GET /api/timetable/student/day`、`GET /api/timetable/teacher/day`、`GET /api/stats/class-leave` |
+| 课堂考勤 | `POST /api/attendance/session/start`、`POST /api/attendance/checkin`、`GET /api/attendance/session/{sessionId}/detail`、`GET /api/teacher/attendance/export` |
+| 基础数据 | `/admin/terms`、`/admin/classes`、`/admin/courses`、`/admin/offerings`、`/admin/enrollments` |
 
 登录请求示例：
 
@@ -230,138 +224,57 @@ UPDATE staff SET password = '123456' WHERE staff_no IN ('T2024001', 'T2024002');
 }
 ```
 
-教职工登录时 `loginType` 使用 `STAFF`，后端会根据 `staff_role` 返回具体 `roleCode`，例如 `COUNSELOR`、`TEACHER` 或 `ADMIN`。
+教职工登录时将 `loginType` 改为 `STAFF`。各接口的参数及返回结构以 [后端 Controller](./backend/src/main/java/com/example/leavesystem/controller) 和 [前端 API 封装](./frontend/src/api) 为准。
 
-### 请假
+## 构建与检查
 
-| 方法 | 路径 | 说明 |
-| --- | --- | --- |
-| `POST` | `/api/leaves/apply` | 学生发起请假 |
-| `GET` | `/api/leaves/my` | 学生查看自己的请假记录 |
-| `GET` | `/api/leaves/{id}/detail` | 查看请假详情 |
-| `PUT` | `/api/leaves/{id}/resubmit` | 学生重新提交请假 |
-| `GET` | `/api/leaves/pending/counselor` | 辅导员待办 |
-| `POST` | `/api/leaves/{id}/counselor-approve` | 辅导员审批 |
-| `POST` | `/api/leaves/counselor-approve/batch` | 辅导员批量审批 |
-| `POST` | `/api/leaves/public/batch` | 辅导员发起公假 |
-| `GET` | `/api/leaves/pending/teacher` | 教师待确认 |
-| `POST` | `/api/leaves/impact/{impactId}/teacher-confirm` | 教师确认课程影响 |
-
-### 课表与统计
-
-| 方法 | 路径 | 说明 |
-| --- | --- | --- |
-| `GET` | `/api/timetable/student/day` | 查询学生某日课表 |
-| `GET` | `/api/timetable/teacher/day` | 查询教师某日课表 |
-| `GET` | `/api/stats/class-leave` | 查询班级请假统计 |
-| `GET` | `/api/counselor/classes` | 查询辅导员管理班级 |
-| `GET` | `/api/counselor/classes/{classId}/students` | 查询班级学生 |
-| `GET` | `/api/counselor/offerings/by-term-class` | 查询班级开课信息 |
-
-### 考勤
-
-| 方法 | 路径 | 说明 |
-| --- | --- | --- |
-| `POST` | `/api/attendance/session/start` | 教师开启签到 |
-| `POST` | `/api/attendance/session/{sessionId}/close` | 教师关闭签到 |
-| `POST` | `/api/attendance/checkin` | 学生签到 |
-| `GET` | `/api/attendance/teacher/sessions` | 查询教师签到会话 |
-| `GET` | `/api/attendance/session/{sessionId}/detail` | 查询签到详情 |
-| `GET` | `/api/teacher/attendance/export` | 导出教师考勤 |
-| `POST` | `/api/absences/{absenceId}/convert-to-leave` | 缺勤转请假 |
-| `POST` | `/api/absences/{absenceId}/confirm` | 确认缺勤 |
-
-### 管理端
-
-| 方法 | 路径 | 说明 |
-| --- | --- | --- |
-| `GET/POST/PUT/DELETE` | `/admin/terms` | 学期管理 |
-| `GET/POST/PUT/DELETE` | `/admin/classes` | 班级管理 |
-| `GET/POST/PUT/DELETE` | `/admin/courses` | 课程管理 |
-| `GET/POST/PUT/DELETE` | `/admin/offerings` | 开课信息管理 |
-| `GET/POST/PUT/DELETE` | `/admin/enrollments` | 选课关系管理 |
-
-## 权限说明
-
-后端通过 `Authorization: Bearer <token>` 识别登录用户。登录成功后，前端会将 `token`、`userId`、`displayName` 和 `roleCode` 存入 `localStorage`，后续请求由 Axios 拦截器自动带上 Token。
-
-角色权限由 `@RequiresRoles` 注解控制：
-
-- `STUDENT`：学生请假、查看个人课表、签到。
-- `COUNSELOR`：审批请假、公假、班级统计、辅导员数据查询。
-- `TEACHER`：确认请假影响、课堂签到、考勤导出。
-- `ADMIN`：学期、班级、课程、开课、选课等基础数据维护。
-
-## 运行测试
-
-后端包含多组接口集成测试：
+在数据库已初始化且连接配置可用的情况下，运行后端测试：
 
 ```bash
 cd backend
-./mvnw test
+mvn test
 ```
 
-Windows PowerShell：
-
-```powershell
-cd backend
-.\mvnw.cmd test
-```
-
-也可以使用 `backend/TestCase/scratch.http` 中的 HTTP 请求进行手动接口调试。
-
-## 构建部署
-
-### 前端构建
+构建前端：
 
 ```bash
 cd frontend
+npm ci
 npm run build
 ```
 
-构建产物默认输出到 `frontend/dist`。
-
-### 后端打包
-
-```bash
-cd backend
-./mvnw clean package
-```
-
-Windows PowerShell：
-
-```powershell
-cd backend
-.\mvnw.cmd clean package
-```
-
-打包后可运行：
-
-```bash
-java -jar target/demo-0.0.1-SNAPSHOT.jar
-```
+后端打包命令为 `cd backend && mvn clean package`；生成的 JAR 位于 `backend/target/`。手动调试请求可参考 [`backend/TestCase/scratch.http`](./backend/TestCase/scratch.http)。
 
 ## 常见问题
 
-### 1. 前端请求 404 或跨域失败
+<details>
+<summary><strong>前端接口返回 404 或连接失败</strong></summary>
 
-确认后端已启动在 `8080` 端口，并且前端通过 Vite 开发服务访问。开发环境下 `/api` 和 `/admin` 会由 Vite 代理到后端。
+确认后端运行在 `8080`，并通过 Vite 开发服务访问前端。`frontend/vite.config.ts` 的代理仅在开发服务中生效；单独部署前端构建产物时需要自行配置反向代理。
 
-### 2. 教师或辅导员无法登录
+</details>
 
-检查 `staff.password` 是否为空。初始化脚本中的教职工密码默认为 `NULL`，需要先设置测试密码。
+<details>
+<summary><strong>辅导员或任课教师无法登录</strong></summary>
 
-### 3. 管理员页面无法正常使用
+检查本地数据库中的 `staff.password`：初始化 SQL 为这两个账号写入 `NULL`，必须先设置演示密码。
 
-确认当前登录账号的 `staff_role.role_code` 为 `ADMIN`。初始化数据默认没有管理员账号，需要手动添加或修改角色。
+</details>
 
-### 4. 数据库连接失败
+<details>
+<summary><strong>管理员页面无法使用</strong></summary>
 
-确认 MySQL 服务已启动，`leave_system` 数据库已创建，且 `application.properties` 中的用户名、密码和端口与本机一致。
+初始化数据没有管理员账号。需要准备可登录的教职工账号，并在 `staff_role` 中配置 `ADMIN`；管理接口也会在后端校验角色。
 
-## 相关文档
+</details>
 
-- `大学生请假信息管理平台需求文档.pdf`
-- `校假通项目报告.pdf`
-- `测试案例.xlsx`
-- `backend/TestCase/scratch.http`
+## 项目文档
+
+- [大学生请假信息管理平台需求文档](./大学生请假信息管理平台需求文档.pdf)：需求与业务场景
+- [校假通项目报告](./校假通项目报告.pdf)：流程、建模、系统界面与部署说明
+- [测试案例](./测试案例.xlsx)：测试用例表
+- [HTTP 调试用例](./backend/TestCase/scratch.http)：接口请求示例
+
+---
+
+<p align="center"><sub>Campus Leave Management Platform · 校假通</sub></p>
